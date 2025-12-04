@@ -22,7 +22,9 @@ class DoctorServiceTest {
     @Test
     void addDoctorSuccessfully() {
         // given
-        Doctor doctor = new Doctor(/* valid data */);
+        Address address = new Address("Oak St", "456", "Boston", "02101");
+        Doctor doctor = new Doctor("Jane", "Smith", "98765432109", address, MedicalSpecialization.INTERNAL_MEDICINE);
+
         when(doctorRepository.save(any(Doctor.class))).thenReturn(doctor);
 
         // when
@@ -30,6 +32,8 @@ class DoctorServiceTest {
 
         // then
         verify(doctorRepository).save(doctor);
+        assertEquals(MedicalSpecialization.INTERNAL_MEDICINE, doctor.getSpecialization());
+
     }
 
 }

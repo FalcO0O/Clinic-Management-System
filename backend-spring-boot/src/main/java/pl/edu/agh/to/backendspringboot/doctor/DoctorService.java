@@ -17,4 +17,7 @@ public class DoctorService {
     }
 
 
+    public List<DoctorBrief> getDoctors() {
+        return doctorRepository.findDoctorsBrief();
+    }
 }

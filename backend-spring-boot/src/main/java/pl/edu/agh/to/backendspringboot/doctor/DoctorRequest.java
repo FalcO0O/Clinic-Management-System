@@ -16,7 +16,6 @@ public record DoctorRequest(
 ) {
     public static Doctor toEntity(DoctorRequest doctorDTO) {
         try {
-            System.out.println(doctorDTO.specialization);
             return new Doctor(
                     doctorDTO.firstName,
                     doctorDTO.lastName,

@@ -7,7 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 class BackendSpringBootApplicationTests {
 
     @Test
-    void contextLoads() {
+    void testAddStudent() {
+
     }
 
 }
