@@ -1,6 +1,10 @@
 package pl.edu.agh.to.backendspringboot.doctor;
 
 import org.springframework.stereotype.Service;
+import pl.edu.agh.to.backendspringboot.doctor.exception.DoctorNotFoundException;
+import pl.edu.agh.to.backendspringboot.doctor.model.Doctor;
+import pl.edu.agh.to.backendspringboot.doctor.model.DoctorBrief;
+import pl.edu.agh.to.backendspringboot.doctor.model.DoctorInfo;
 
 import java.util.List;
 
@@ -19,5 +23,9 @@ public class DoctorService {
 
     public List<DoctorBrief> getDoctors() {
         return doctorRepository.findDoctorsBrief();
+    }
+
+    public DoctorInfo getDoctorInfoById(Integer id) {
+        return doctorRepository.findDoctorInfoById(id).orElseThrow(()->new DoctorNotFoundException("Doctor with id "+id+" not found"));
     }
 }

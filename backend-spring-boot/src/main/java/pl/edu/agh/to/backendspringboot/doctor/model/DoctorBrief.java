@@ -1,4 +1,4 @@
-package pl.edu.agh.to.backendspringboot.doctor;
+package pl.edu.agh.to.backendspringboot.doctor.model;
 
 public interface DoctorBrief {
     String getFirstName();

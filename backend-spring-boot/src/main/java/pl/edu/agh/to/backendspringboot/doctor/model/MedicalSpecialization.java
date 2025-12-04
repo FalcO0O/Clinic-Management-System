@@ -1,4 +1,4 @@
-package pl.edu.agh.to.backendspringboot.doctor;
+package pl.edu.agh.to.backendspringboot.doctor.model;
 
 public enum MedicalSpecialization {
 
@@ -30,10 +30,6 @@ public enum MedicalSpecialization {
 
     MedicalSpecialization(String name) {
         this.name = name;
-    }
-
-    public String getName() {
-        return name;
     }
 
     @Override
