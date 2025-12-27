@@ -68,6 +68,40 @@ public class ScheduleService {
     }
 
     /**
+     * Tworzy i zapisuje nowy dyżur (Schedule) w systemie.
+     * Metoda przeprowadza szereg walidacji: poprawność czasu, istnienie lekarza i gabinetu,
+     * oraz sprawdza czy nie występują konflikty w harmonogramie (czy lekarz lub gabinet nie są już zajęci).
+     *
+     * @param scheduleRequest Obiekt DTO z danymi dotyczącymi planowanego dyżuru.
+     * @throws DoctorNotFoundException jeśli lekarz o podanym ID nie istnieje.
+     * @throws ConsultingRoomNotFoundException jeśli gabinet o podanym ID nie istnieje.
+     * @throws ConflictInScheduleTimePeriod jeśli lekarz lub gabinet ma już zaplanowany dyżur w tym czasie.
+     * @throws InvalidScheduleTimePeriod jeśli ramy czasowe są niepoprawne (np. zbyt krótki dyżur).
+     */
+    @Transactional
+    public void addSchedule(ScheduleRequest scheduleRequest) {
+        validateScheduleTimePeriod(scheduleRequest.startTime(), scheduleRequest.endTime());
+
+        int doctorId = scheduleRequest.doctorId();
+        int consultingRoomId = scheduleRequest.consultingRoomId();
+
+        var doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(()->new DoctorNotFoundException("Doctor with id " + doctorId + " not found"));
+        var consultingRoom = consultingRoomRepository.findById(consultingRoomId)
+                .orElseThrow(()->new ConsultingRoomNotFoundException("Consulting room with id " + consultingRoomId + " not found"));
+
+        if(scheduleRepository.existsScheduleInPeriodForConsultingDoctor(scheduleRequest.startTime(), scheduleRequest.endTime(), consultingRoomId)){
+            throw new ConflictInScheduleTimePeriod("Doctor is already scheduled for this consulting room");
+        }
+
+        if(scheduleRepository.existsScheduleInPeriodForDoctor(scheduleRequest.startTime(), scheduleRequest.endTime(), doctorId)){
+            throw new ConflictInScheduleTimePeriod("Consulting room is already scheduled for this doctor");
+        }
+
+        scheduleRepository.save(scheduleRequest.toSchedule(doctor, consultingRoom));
+    }
+
+    /**
      * Metoda pomocnicza walidująca poprawność logiczną przedziału czasowego.
      * Sprawdza kolejność godzin oraz minimalną i maksymalną długość trwania dyżuru.
      *

@@ -87,4 +87,35 @@ public class ScheduleController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
     }
+
+    /**
+     * Planuje nowy dyżur dla lekarza w konkretnym gabinecie.
+     * <p>
+     * Metoda waliduje istnienie lekarza i gabinetu oraz poprawność logiczną ram czasowych.
+     * Dodatkowo sprawdza, czy w podanym terminie nie występuje konflikt (zajętość zasobu).
+     *
+     * @param scheduleRequest Obiekt DTO zawierający ID lekarza, ID gabinetu oraz ramy czasowe dyżuru.
+     * @throws ResponseStatusException (HttpStatus.BAD_REQUEST) w przypadku gdy lekarz lub gabinet nie istnieje, lub podano błędny czas.
+     * @throws ResponseStatusException (HttpStatus.CONFLICT) w przypadku gdy lekarz lub gabinet jest już zajęty w tym terminie.
+     */
+    @Operation(
+            summary = "Zaplanuj dyżur lekarza",
+            description = "Tworzy nowy dyżur dla wybranego lekarza i gabinetu w określonych godzinach. " +
+                    "Godziny należy podawać w formacie HH:mm. System domyślnie przyjmuje, że dyżur dotyczy dnia dzisiejszego."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Dyżur został pomyślnie utworzony"),
+            @ApiResponse(responseCode = "400", description = "Nieprawidłowe dane (np. błędny format czasu, brak ID)"),
+            @ApiResponse(responseCode = "409", description = "Konflikt - lekarz lub gabinet jest już zajęty w tym terminie")
+    })
+    @PostMapping
+    public void scheduleDuty(@Valid @RequestBody ScheduleRequest scheduleRequest){
+        try {
+            scheduleService.addSchedule(scheduleRequest);
+        } catch (DoctorNotFoundException | ConsultingRoomNotFoundException | InvalidScheduleTimePeriod e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
+        } catch (ConflictInScheduleTimePeriod e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getLocalizedMessage());
+        }
+    }
 }
