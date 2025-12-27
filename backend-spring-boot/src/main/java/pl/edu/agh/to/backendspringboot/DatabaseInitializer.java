@@ -3,12 +3,13 @@ package pl.edu.agh.to.backendspringboot;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.Address;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.MedicalSpecialization;
 
-@SpringBootApplication
+@Component
 public class DatabaseInitializer {
 
     public static void main(String[] args) {

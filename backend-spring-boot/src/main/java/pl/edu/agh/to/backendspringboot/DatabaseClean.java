@@ -3,9 +3,10 @@ package pl.edu.agh.to.backendspringboot;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
 
-@SpringBootApplication
+@Component
 public class DatabaseClean {
 
     public static void main(String[] args) {

@@ -1,12 +1,13 @@
 package pl.edu.agh.to.backendspringboot.presentation.schedule.dto;
 
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule;
-import java.time.OffsetDateTime;
+
+import java.time.LocalTime;
 
 public record ScheduleResponse(
         Integer id,
-        OffsetDateTime shiftStart,
-        OffsetDateTime shiftEnd
+        LocalTime shiftStart,
+        LocalTime shiftEnd
 ) {
     public static ScheduleResponse from(Schedule schedule) {
         return new ScheduleResponse(
