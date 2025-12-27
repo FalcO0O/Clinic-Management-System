@@ -26,4 +26,6 @@ public interface ConsultingRoomRepository extends JpaRepository<ConsultingRoom, 
         WHERE cr.id = :id
     """)
     Optional<ConsultingRoom> findByIdWithSchedules(@Param("id")Integer id);
+
+    boolean existsByRoomNumber(String roomNumber);
 }

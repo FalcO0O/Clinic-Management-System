@@ -16,6 +16,7 @@ public class ConsultingRoom {
     @GeneratedValue
     private Integer id;
     @NotBlank
+    @Column(unique=true)
     private String roomNumber;
 
     @OneToMany(mappedBy = "consultingRoom")
