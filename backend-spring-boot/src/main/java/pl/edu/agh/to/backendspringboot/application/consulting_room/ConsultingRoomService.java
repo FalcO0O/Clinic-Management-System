@@ -26,6 +26,11 @@ public class ConsultingRoomService {
                 .map(ConsultingRoomBriefResponse::from).toList();
     }
 
+    public ConsultingRoomDetailResponse getConsultingRoomDetailResponse(Integer id){
+        return consultingRoomRepository.findByIdWithSchedules(id).map(ConsultingRoomDetailResponse::from)
+                .orElseThrow(()->new ConsultingRoomNotFoundException("Consulting room with id " + id + " not found"));
+    }
+
     public void deleteConsultingRoomById(Integer id) {
         if (!consultingRoomRepository.existsById(id)) {
             throw new ConsultingRoomNotFoundException("Consulting room with id " + id + " not found");

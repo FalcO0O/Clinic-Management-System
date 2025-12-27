@@ -18,6 +18,9 @@ public class ConsultingRoom {
     @NotBlank
     private String roomNumber;
 
+    @OneToMany(mappedBy = "consultingRoom")
+    private Set<Schedule> schedules;
+
     @Embedded
     @NotNull
     private MedicalFacilities medicalFacilities;
@@ -41,5 +44,9 @@ public class ConsultingRoom {
 
     public MedicalFacilities getMedicalFacilities() {
         return medicalFacilities;
+    }
+
+    public Set<Schedule> getSchedules(){
+        return schedules;
     }
 }

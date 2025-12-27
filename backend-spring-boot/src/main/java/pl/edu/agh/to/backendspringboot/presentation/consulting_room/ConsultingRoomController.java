@@ -70,6 +70,11 @@ public class ConsultingRoomController {
         return consultingRoomService.getConsultingRooms();
     }
 
+    @GetMapping("/{id}")
+    public ConsultingRoomDetailResponse getConsultingRoomDetailById(@PathVariable Integer id){
+        return consultingRoomService.getConsultingRoomDetailResponse(id);
+    }
+
     @DeleteMapping("/{id}")
     public void deleteConsultingRoomById(@PathVariable Integer id){
         consultingRoomService.deleteConsultingRoomById(id);

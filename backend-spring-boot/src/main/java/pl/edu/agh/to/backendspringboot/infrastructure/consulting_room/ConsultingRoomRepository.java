@@ -18,4 +18,12 @@ public interface ConsultingRoomRepository extends JpaRepository<ConsultingRoom, 
     """)
     List<ConsultingRoomBrief> findConsultingRoomsBrief();
 
+    @Query("""
+        SELECT cr
+        FROM ConsultingRoom cr
+        LEFT JOIN FETCH cr.schedules s
+        LEFT JOIN FETCH s.doctor
+        WHERE cr.id = :id
+    """)
+    Optional<ConsultingRoom> findByIdWithSchedules(@Param("id")Integer id);
 }
