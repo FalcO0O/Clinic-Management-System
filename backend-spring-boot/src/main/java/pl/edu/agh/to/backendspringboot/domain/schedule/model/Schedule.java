@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoom;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
 
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 
 @Entity
 public class Schedule {
@@ -21,10 +23,19 @@ public class Schedule {
     private ConsultingRoom consultingRoom;
 
     @Column(name = Columns.SHIFT_START)
-    private OffsetDateTime shiftStart;
+    private LocalTime shiftStart;
     @Column(name = Columns.SHIFT_END)
-    private OffsetDateTime shiftEnd;
+    private LocalTime shiftEnd;
 
+    public Schedule(Doctor doctor, ConsultingRoom consultingRoom, LocalTime shiftStart, LocalTime shiftEnd) {
+        this.doctor = doctor;
+        this.consultingRoom = consultingRoom;
+        this.shiftStart = shiftStart;
+        this.shiftEnd = shiftEnd;
+    }
+
+    public Schedule() {
+    }
     public static class Columns {
 
         public static final String SHIFT_START = "shift_start";
@@ -45,11 +56,11 @@ public class Schedule {
         return id;
     }
 
-    public OffsetDateTime getShiftEnd() {
+    public LocalTime getShiftEnd() {
         return shiftEnd;
     }
 
-    public OffsetDateTime getShiftStart() {
+    public LocalTime getShiftStart() {
         return shiftStart;
     }
 
