@@ -1,4 +1,4 @@
-package pl.edu.agh.to.backendspringboot.domain.doctor.model;
+package pl.edu.agh.to.backendspringboot.domain.shared.model;
 
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotBlank;
@@ -21,18 +21,7 @@ public class Address {
         this.postalCode = postalCode;
     }
 
-    public String getStreet() {
-        return street;
-    }
-
-
-    public String getCity() {
-        return city;
-    }
-
-
-    public String getPostalCode() {
-        return postalCode;
-    }
-
+    public String getStreet() { return street; }
+    public String getCity() { return city; }
+    public String getPostalCode() { return postalCode; }
 }

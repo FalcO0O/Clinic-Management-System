@@ -1,8 +1,8 @@
-package pl.edu.agh.to.backendspringboot.domain.doctor.model;
+package pl.edu.agh.to.backendspringboot.domain.patient.model;
 
 import pl.edu.agh.to.backendspringboot.domain.shared.model.Address;
 
-public interface DoctorDetail extends DoctorBrief {
+public interface PatientDetail extends PatientBrief {
     String getPesel();
     Address getAddress();
 }

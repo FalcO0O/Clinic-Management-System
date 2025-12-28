@@ -1,7 +1,9 @@
 package pl.edu.agh.to.backendspringboot.application.doctor;
 
 import org.springframework.stereotype.Service;
+import pl.edu.agh.to.backendspringboot.domain.schedule.model.ScheduleBrief;
 import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
+import pl.edu.agh.to.backendspringboot.infrastructure.schedule.ScheduleRepository;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorDetailResponse;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorRequest;
@@ -17,14 +19,15 @@ import java.util.List;
 @Service
 public class DoctorService {
     private final DoctorRepository doctorRepository;
-
+    private final ScheduleRepository scheduleRepository;
     /**
      * Konstruktor serwisu wstrzykujący zależność repozytorium.
      *
      * @param doctorRepository Repozytorium umożliwiające operacje na bazie danych lekarzy.
      */
-    public DoctorService(DoctorRepository doctorRepository) {
+    public DoctorService(DoctorRepository doctorRepository, ScheduleRepository scheduleRepository) {
         this.doctorRepository = doctorRepository;
+        this.scheduleRepository = scheduleRepository;
     }
 
     /**
@@ -55,8 +58,12 @@ public class DoctorService {
      * @throws DoctorNotFoundException jeśli lekarz o podanym identyfikatorze nie zostanie znaleziony.
      */
     public DoctorDetailResponse getDoctorInfoById(Integer id) {
-        return doctorRepository.findDoctorInfoById(id).map(DoctorDetailResponse::from)
-                .orElseThrow(()->new DoctorNotFoundException("Doctor with id "+id+" not found"));
+        var doctorDetail = doctorRepository.findDoctorInfoById(id)
+                .orElseThrow(() -> new DoctorNotFoundException("Doctor with id " + id + " not found"));
+
+        List<ScheduleBrief> schedules = scheduleRepository.findAllByDoctorId(id);
+
+        return DoctorDetailResponse.from(doctorDetail, schedules);
     }
 
     /**

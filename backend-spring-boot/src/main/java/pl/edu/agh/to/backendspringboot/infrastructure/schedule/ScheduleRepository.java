@@ -2,11 +2,13 @@ package pl.edu.agh.to.backendspringboot.infrastructure.schedule;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoom;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoomBrief;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule;
+import pl.edu.agh.to.backendspringboot.domain.schedule.model.ScheduleBrief;
 
 import java.time.LocalTime;
 import java.time.OffsetTime;
@@ -58,5 +60,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
     """)
     boolean existsScheduleInPeriodForConsultingDoctor(LocalTime startTime, LocalTime endTime,int consultingRoomId);
 
-
+    @Query("SELECT s FROM Schedule s WHERE s.doctor.id = :doctorId")
+    List<ScheduleBrief> findAllByDoctorId(@Param("doctorId") Integer doctorId);
 }

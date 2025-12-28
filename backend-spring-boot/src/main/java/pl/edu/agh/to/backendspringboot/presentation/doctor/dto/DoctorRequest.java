@@ -4,9 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import pl.edu.agh.to.backendspringboot.domain.doctor.exception.InvalidMedicalSpecialization;
-import pl.edu.agh.to.backendspringboot.domain.doctor.model.Address;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.MedicalSpecialization;
+import pl.edu.agh.to.backendspringboot.domain.shared.model.Address;
 
 public record DoctorRequest(
         @NotBlank(message = "First name is mandatory") String firstName,

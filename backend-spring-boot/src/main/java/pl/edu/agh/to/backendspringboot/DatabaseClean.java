@@ -6,6 +6,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 import pl.edu.agh.to.backendspringboot.infrastructure.consulting_room.ConsultingRoomRepository;
 import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
+import pl.edu.agh.to.backendspringboot.infrastructure.patient.PatientRepository;
 import pl.edu.agh.to.backendspringboot.infrastructure.schedule.ScheduleRepository;
 
 @Component
@@ -22,10 +23,12 @@ public class DatabaseClean {
         DoctorRepository doctorRepository = context.getBean(DoctorRepository.class);
         ConsultingRoomRepository consultingRoomRepository = context.getBean(ConsultingRoomRepository.class);
         ScheduleRepository scheduleRepository = context.getBean(ScheduleRepository.class);
+        PatientRepository patientRepository = context.getBean(PatientRepository.class);
 
         scheduleRepository.deleteAll();
         doctorRepository.deleteAll();
         consultingRoomRepository.deleteAll();
+        patientRepository.deleteAll();
 
         System.out.println("Database cleaned.");
         System.exit(0);

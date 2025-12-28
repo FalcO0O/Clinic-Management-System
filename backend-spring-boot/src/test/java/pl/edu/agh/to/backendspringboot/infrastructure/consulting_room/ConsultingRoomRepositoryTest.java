@@ -1,7 +1,6 @@
 package pl.edu.agh.to.backendspringboot.infrastructure.consulting_room;
 
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -9,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoom;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoomBrief;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.MedicalFacilities;
-import pl.edu.agh.to.backendspringboot.domain.doctor.model.Address;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.MedicalSpecialization;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule;

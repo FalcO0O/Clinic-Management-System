@@ -1,22 +1,23 @@
-package pl.edu.agh.to.backendspringboot.domain.doctor.model;
+package pl.edu.agh.to.backendspringboot.domain.patient.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule;
 import pl.edu.agh.to.backendspringboot.domain.shared.model.Address;
 
-import java.util.Set;
-
 @Entity
-public class Doctor {
+public class Patient {
+
     @Id
     @GeneratedValue
     private Integer id;
+
     @NotBlank
     private String firstName;
+
     @NotBlank
     private String lastName;
+
     @NotBlank
     private String pesel;
 
@@ -24,22 +25,14 @@ public class Doctor {
     @NotNull
     private Address address;
 
-    @Enumerated(EnumType.STRING)
-    @NotNull
-    private MedicalSpecialization specialization;
-
-    @OneToMany(mappedBy = "doctor")
-    private Set<Schedule> schedules;
-
-    public Doctor() {
+    public Patient() {
     }
 
-    public Doctor(String firstName, String lastName, String pesel, Address address, MedicalSpecialization specialization) {
+    public Patient(String firstName, String lastName, String pesel, Address address) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.pesel = pesel;
         this.address = address;
-        this.specialization = specialization;
     }
 
     public Integer getId() {
@@ -60,9 +53,5 @@ public class Doctor {
 
     public Address getAddress() {
         return address;
-    }
-
-    public MedicalSpecialization getSpecialization() {
-        return specialization;
     }
 }
