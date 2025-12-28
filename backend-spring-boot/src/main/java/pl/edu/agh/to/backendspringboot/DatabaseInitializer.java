@@ -5,12 +5,14 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoom;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.MedicalFacilities;
+import pl.edu.agh.to.backendspringboot.domain.patient.model.Patient;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule;
+import pl.edu.agh.to.backendspringboot.domain.shared.model.Address;
 import pl.edu.agh.to.backendspringboot.infrastructure.consulting_room.ConsultingRoomRepository;
 import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
-import pl.edu.agh.to.backendspringboot.domain.doctor.model.Address;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.MedicalSpecialization;
+import pl.edu.agh.to.backendspringboot.infrastructure.patient.PatientRepository;
 import pl.edu.agh.to.backendspringboot.infrastructure.schedule.ScheduleRepository;
 
 import java.time.LocalTime;
@@ -27,10 +29,12 @@ public class DatabaseInitializer {
         DoctorRepository doctorRepository = context.getBean(DoctorRepository.class);
         ConsultingRoomRepository consultingRoomRepository = context.getBean(ConsultingRoomRepository.class);
         ScheduleRepository scheduleRepository = context.getBean(ScheduleRepository.class);
+        PatientRepository patientRepository = context.getBean(PatientRepository.class);
 
         scheduleRepository.deleteAll();
         doctorRepository.deleteAll();
         consultingRoomRepository.deleteAll();
+        patientRepository.deleteAll();
 
         var doc1 = doctorRepository.save(new Doctor(
                 "John", "Doe", "12345678901",
@@ -77,6 +81,26 @@ public class DatabaseInitializer {
         scheduleRepository.save(new Schedule(doc2, room102, LocalTime.of(8, 0), LocalTime.of(12, 0)));
         scheduleRepository.save(new Schedule(doc3, room101, LocalTime.of(13, 0), LocalTime.of(17, 0)));
         scheduleRepository.save(new Schedule(doc4, room201, LocalTime.of(9, 0), LocalTime.of(15, 0)));
+
+        patientRepository.save(new Patient(
+                "Jan", "Kowalski", "90010112345",
+                new Address("Długa 5", "Kraków", "31-123")
+        ));
+
+        patientRepository.save(new Patient(
+                "Anna", "Nowak", "85050554321",
+                new Address("Krótka 10", "Warszawa", "00-999")
+        ));
+
+        patientRepository.save(new Patient(
+                "Tomasz", "Zieliński", "76121209876",
+                new Address("Rynek 1", "Wrocław", "50-101")
+        ));
+
+        patientRepository.save(new Patient(
+                "Magdalena", "Wójcik", "99030311223",
+                new Address("Polna 7", "Gdańsk", "80-001")
+        ));
 
         System.out.println("Database initialized successfully");
     }

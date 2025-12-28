@@ -10,7 +10,6 @@ import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefRespon
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorDetailResponse;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorRequest;
 import pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorNotFoundException;
-import pl.edu.agh.to.backendspringboot.domain.doctor.model.Address;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief;
 import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
