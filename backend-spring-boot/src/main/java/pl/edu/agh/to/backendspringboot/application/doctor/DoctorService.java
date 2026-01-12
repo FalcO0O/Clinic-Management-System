@@ -1,10 +1,14 @@
 package pl.edu.agh.to.backendspringboot.application.doctor;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorAssignedToScheduleException;
+import pl.edu.agh.to.backendspringboot.domain.schedule.model.ScheduleBrief;
 import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
-import pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorBriefResponse;
-import pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorInfoResponse;
-import pl.edu.agh.to.backendspringboot.shared.doctor.dto.DoctorRequest;
+import pl.edu.agh.to.backendspringboot.infrastructure.schedule.ScheduleRepository;
+import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse;
+import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorDetailResponse;
+import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorRequest;
 import pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorNotFoundException;
 
 import java.util.List;
@@ -17,14 +21,15 @@ import java.util.List;
 @Service
 public class DoctorService {
     private final DoctorRepository doctorRepository;
-
+    private final ScheduleRepository scheduleRepository;
     /**
      * Konstruktor serwisu wstrzykujący zależność repozytorium.
      *
      * @param doctorRepository Repozytorium umożliwiające operacje na bazie danych lekarzy.
      */
-    public DoctorService(DoctorRepository doctorRepository) {
+    public DoctorService(DoctorRepository doctorRepository, ScheduleRepository scheduleRepository) {
         this.doctorRepository = doctorRepository;
+        this.scheduleRepository = scheduleRepository;
     }
 
     /**
@@ -51,25 +56,39 @@ public class DoctorService {
      * Pobiera szczegółowe informacje o lekarzu na podstawie jego identyfikatora.
      *
      * @param id Unikalny identyfikator lekarza.
-     * @return Obiekt {@link DoctorInfoResponse} zawierający pełne dane lekarza.
+     * @return Obiekt {@link DoctorDetailResponse} zawierający pełne dane lekarza.
      * @throws DoctorNotFoundException jeśli lekarz o podanym identyfikatorze nie zostanie znaleziony.
      */
-    public DoctorInfoResponse getDoctorInfoById(Integer id) {
-        return doctorRepository.findDoctorInfoById(id).map(DoctorInfoResponse::from)
-                .orElseThrow(()->new DoctorNotFoundException("Doctor with id "+id+" not found"));
+    public DoctorDetailResponse getDoctorInfoById(Integer id) {
+        var doctorDetail = doctorRepository.findDoctorInfoById(id)
+                .orElseThrow(() -> new DoctorNotFoundException("Doctor with id " + id + " not found"));
+
+        List<ScheduleBrief> schedules = scheduleRepository.findAllByDoctorId(id);
+
+        return DoctorDetailResponse.from(doctorDetail, schedules);
     }
 
     /**
-     * Usuwa lekarza z systemu na podstawie jego identyfikatora.
-     * Przed usunięciem następuje weryfikacja, czy lekarz o danym ID istnieje.
+     * Usuwa lekarza z systemu.
+     * <p>
+     * Przed usunięciem sprawdza, czy lekarz nie ma przypisanych przyszłych lub przeszłych dyżurów.
      *
-     * @param id Unikalny identyfikator lekarza do usunięcia.
-     * @throws DoctorNotFoundException jeśli lekarz o podanym identyfikatorze nie istnieje.
+     * @param id ID lekarza.
+     * @throws DoctorNotFoundException           jeśli lekarz nie istnieje.
+     * @throws DoctorAssignedToScheduleException jeśli lekarz ma przypisane dyżury (nie można usunąć).
      */
+    @Transactional
     public void deleteDoctorById(Integer id) {
         if (!doctorRepository.existsById(id)) {
             throw new DoctorNotFoundException("Doctor with id " + id + " not found");
         }
+
+        if (scheduleRepository.existsByDoctorId(id)) {
+            throw new DoctorAssignedToScheduleException(
+                    "Cannot delete doctor with id " + id + " because they have assigned schedules."
+            );
+        }
+
         doctorRepository.deleteById(id);
     }
 }

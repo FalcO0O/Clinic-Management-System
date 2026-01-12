@@ -1,22 +1,35 @@
 package pl.edu.agh.to.backendspringboot.domain.doctor.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule;
+import pl.edu.agh.to.backendspringboot.domain.shared.model.Address;
+
+import java.util.Set;
 
 @Entity
 public class Doctor {
     @Id
     @GeneratedValue
     private Integer id;
-
+    @NotBlank
     private String firstName;
+    @NotBlank
     private String lastName;
+    @NotBlank
     private String pesel;
 
     @Embedded
+    @NotNull
     private Address address;
 
     @Enumerated(EnumType.STRING)
+    @NotNull
     private MedicalSpecialization specialization;
+
+    @OneToMany(mappedBy = "doctor")
+    private Set<Schedule> schedules;
 
     public Doctor() {
     }
