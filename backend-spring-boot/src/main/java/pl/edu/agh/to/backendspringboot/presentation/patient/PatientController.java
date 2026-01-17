@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.edu.agh.to.backendspringboot.application.patient.PatientService;
 import pl.edu.agh.to.backendspringboot.domain.patient.exception.PatientAlreadyExistsException;
+import pl.edu.agh.to.backendspringboot.domain.patient.exception.PatientAssignedToVisitException;
 import pl.edu.agh.to.backendspringboot.domain.patient.exception.PatientNotFoundException;
 import pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientDetailResponse;
@@ -98,6 +99,8 @@ public class PatientController {
             patientService.deletePatientById(id);
         } catch (PatientNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }catch (PatientAssignedToVisitException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 }

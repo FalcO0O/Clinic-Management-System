@@ -17,6 +17,8 @@ import pl.edu.agh.to.backendspringboot.domain.consulting_room.exception.Consulti
 import pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorNotFoundException;
 import pl.edu.agh.to.backendspringboot.domain.schedule.exception.ConflictInScheduleTimePeriod;
 import pl.edu.agh.to.backendspringboot.domain.schedule.exception.InvalidScheduleTimePeriod;
+import pl.edu.agh.to.backendspringboot.domain.schedule.exception.ScheduleNotFoundException;
+import pl.edu.agh.to.backendspringboot.domain.schedule.exception.VisitAssignedToScheduleException;
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.AvailabilityResponse;
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleRequest;
 
@@ -116,6 +118,17 @@ public class ScheduleController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         } catch (ConflictInScheduleTimePeriod e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getLocalizedMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteScheduleById(@PathVariable int id) {
+        try {
+            scheduleService.deleteScheduleById(id);
+        } catch(ScheduleNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }catch (VisitAssignedToScheduleException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 }

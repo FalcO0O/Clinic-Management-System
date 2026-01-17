@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorDetail;
+import pl.edu.agh.to.backendspringboot.infrastructure.schedule.ScheduleRepository;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorDetailResponse;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorRequest;
@@ -27,6 +28,8 @@ import static org.mockito.Mockito.mock;
 class DoctorServiceTest {
     @Mock
     private DoctorRepository doctorRepository;
+    @Mock
+    private ScheduleRepository scheduleRepository;
 
     @InjectMocks
     private DoctorService doctorService;

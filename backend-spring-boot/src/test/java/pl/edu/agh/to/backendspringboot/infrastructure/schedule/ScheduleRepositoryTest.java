@@ -11,6 +11,7 @@ import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.MedicalSpecialization;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule;
+import pl.edu.agh.to.backendspringboot.domain.shared.model.Address;
 
 import java.time.LocalTime;
 import java.util.List;

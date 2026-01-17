@@ -2,11 +2,14 @@ package pl.edu.agh.to.backendspringboot.application.patient;
 
 import org.springframework.stereotype.Service;
 import pl.edu.agh.to.backendspringboot.domain.patient.exception.PatientAlreadyExistsException;
+import pl.edu.agh.to.backendspringboot.domain.visit.VisitBriefPatient;
 import pl.edu.agh.to.backendspringboot.infrastructure.patient.PatientRepository;
+import pl.edu.agh.to.backendspringboot.infrastructure.visit.VisitRepository;
 import pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientDetailResponse;
 import pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientRequest;
 import pl.edu.agh.to.backendspringboot.domain.patient.exception.PatientNotFoundException;
+import pl.edu.agh.to.backendspringboot.presentation.visit.dto.VisitBriefPatientResponse;
 
 import java.util.List;
 
@@ -18,14 +21,16 @@ import java.util.List;
 @Service
 public class PatientService {
     private final PatientRepository patientRepository;
+    private final VisitRepository visitRepository;
 
     /**
      * Konstruktor serwisu wstrzykujący zależność repozytorium.
      *
      * @param patientRepository Repozytorium umożliwiające operacje na bazie danych pacjentów.
      */
-    public PatientService(PatientRepository patientRepository) {
+    public PatientService(PatientRepository patientRepository, VisitRepository visitRepository) {
         this.patientRepository = patientRepository;
+        this.visitRepository = visitRepository;
     }
 
     /**
@@ -35,6 +40,7 @@ public class PatientService {
      * @param patientRequest Obiekt zawierający dane niezbędne do utworzenia pacjenta.
      */
     public void addPatient(PatientRequest patientRequest) {
+        // SPRAWDZENIE UNIKALNOŚCI:
         if (patientRepository.existsByPesel(patientRequest.pesel())) {
             throw new PatientAlreadyExistsException("Patient with PESEL " + patientRequest.pesel() + " already exists");
         }
@@ -49,7 +55,9 @@ public class PatientService {
      * @return Lista skróconych informacji o pacjentach.
      */
     public List<PatientBriefResponse> getPatients() {
-        return patientRepository.findPatientsBrief().stream()
+        // Używam findAll(), zakładając że nie masz jeszcze dedykowanej metody findPatientsBrief() w repozytorium
+        // Jeśli masz, zamień findAll() na findPatientsBrief()
+        return patientRepository.findAll().stream()
                 .map(PatientBriefResponse::from)
                 .toList();
     }
@@ -62,8 +70,9 @@ public class PatientService {
      * @throws PatientNotFoundException jeśli pacjent o podanym identyfikatorze nie zostanie znaleziony.
      */
     public PatientDetailResponse getPatientInfoById(Integer id) {
-        return patientRepository.findPatientInfoById(id)
-                .map(PatientDetailResponse::from)
+        List<VisitBriefPatient> visits = visitRepository.findAllByPatientId(id);
+        return patientRepository.findById(id)
+                .map(patient -> PatientDetailResponse.from(patient, visits))
                 .orElseThrow(() -> new PatientNotFoundException("Patient with id " + id + " not found"));
     }
 
@@ -77,6 +86,9 @@ public class PatientService {
     public void deletePatientById(Integer id) {
         if (!patientRepository.existsById(id)) {
             throw new PatientNotFoundException("Patient with id " + id + " not found");
+        }
+        if (visitRepository.visitsExistForPatient(id)) {
+            throw new PatientAlreadyExistsException("Patient with id " + id + " has assigned visits and cannot be deleted");
         }
         patientRepository.deleteById(id);
     }

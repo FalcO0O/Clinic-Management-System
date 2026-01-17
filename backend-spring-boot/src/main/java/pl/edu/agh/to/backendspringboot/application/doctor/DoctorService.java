@@ -4,8 +4,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorAssignedToScheduleException;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.ScheduleBrief;
+import pl.edu.agh.to.backendspringboot.domain.visit.VisitBriefDoctor;
+import pl.edu.agh.to.backendspringboot.domain.visit.VisitBriefPatient;
 import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
 import pl.edu.agh.to.backendspringboot.infrastructure.schedule.ScheduleRepository;
+import pl.edu.agh.to.backendspringboot.infrastructure.visit.VisitRepository;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorDetailResponse;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorRequest;
@@ -22,14 +25,16 @@ import java.util.List;
 public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final ScheduleRepository scheduleRepository;
+    private final VisitRepository visitRepository;
     /**
      * Konstruktor serwisu wstrzykujący zależność repozytorium.
      *
      * @param doctorRepository Repozytorium umożliwiające operacje na bazie danych lekarzy.
      */
-    public DoctorService(DoctorRepository doctorRepository, ScheduleRepository scheduleRepository) {
+    public DoctorService(DoctorRepository doctorRepository, ScheduleRepository scheduleRepository, VisitRepository visitRepository) {
         this.doctorRepository = doctorRepository;
         this.scheduleRepository = scheduleRepository;
+        this.visitRepository = visitRepository;
     }
 
     /**
@@ -65,7 +70,9 @@ public class DoctorService {
 
         List<ScheduleBrief> schedules = scheduleRepository.findAllByDoctorId(id);
 
-        return DoctorDetailResponse.from(doctorDetail, schedules);
+        List<VisitBriefDoctor> visits = visitRepository.findAllByDoctorId(id);
+
+        return DoctorDetailResponse.from(doctorDetail, schedules, visits);
     }
 
     /**

@@ -11,6 +11,7 @@ import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRo
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoomBrief;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.MedicalFacilities;
 import pl.edu.agh.to.backendspringboot.infrastructure.consulting_room.ConsultingRoomRepository;
+import pl.edu.agh.to.backendspringboot.infrastructure.schedule.ScheduleRepository;
 import pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.ConsultingRoomBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.ConsultingRoomDetailResponse;
 import pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.ConsultingRoomRequest;
@@ -31,6 +32,9 @@ public class ConsultingRoomServiceTest {
 
     @InjectMocks
     private ConsultingRoomService consultingRoomService;
+
+    @Mock
+    private ScheduleRepository scheduleRepository;
 
     @Test
     void shouldAddConsultingRoomWhenRoomNumberIsUnique() {
