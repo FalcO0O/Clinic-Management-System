@@ -67,6 +67,13 @@ public class PatientController {
         }
     }
 
+    /**
+     * Rejestruje nowego pacjenta w systemie.
+     * Przyjmuje dane w formacie DTO, które są walidowane przed przetworzeniem.
+     *
+     * @param patientRequest Obiekt DTO zawierający dane nowego pacjenta (np. imię, nazwisko, PESEL).
+     * @throws ResponseStatusException (HttpStatus.CONFLICT) jeśli pacjent z podanym numerem PESEL już istnieje w systemie.
+     */
     @Operation(summary = "Dodaj pacjenta", description = "Tworzy nowego pacjenta w systemie.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Pacjent został pomyślnie utworzony"),

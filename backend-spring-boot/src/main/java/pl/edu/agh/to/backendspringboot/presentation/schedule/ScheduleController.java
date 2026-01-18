@@ -31,6 +31,7 @@ import java.time.LocalTime;
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
+
     /**
      * Konstruktor kontrolera wstrzykujący zależność serwisu dyżurów lekarzy.
      *
@@ -121,13 +122,33 @@ public class ScheduleController {
         }
     }
 
+    /**
+     * Usuwa istniejący dyżur z harmonogramu.
+     * <p>
+     * Usunięcie jest możliwe tylko w przypadku, gdy do danego dyżuru nie zostały jeszcze 
+     * przypisane żadne konkretne wizyty pacjentów.
+     *
+     * @param id Unikalny identyfikator dyżuru do usunięcia.
+     * @throws ResponseStatusException (HttpStatus.NOT_FOUND) jeśli dyżur o podanym ID nie istnieje.
+     * @throws ResponseStatusException (HttpStatus.CONFLICT) jeśli do dyżuru są przypisane wizyty.
+     */
+    @Operation(
+            summary = "Usuń dyżur",
+            description = "Trwale usuwa dyżur z systemu na podstawie jego identyfikatora. " +
+                    "Operacja zostanie zablokowana, jeśli do tego dyżuru są już przypisane wizyty pacjentów."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Dyżur został pomyślnie usunięty"),
+            @ApiResponse(responseCode = "404", description = "Dyżur o podanym ID nie został znaleziony"),
+            @ApiResponse(responseCode = "409", description = "Nie można usunąć dyżuru - istnieją przypisane do niego wizyty")
+    })
     @DeleteMapping("/{id}")
     public void deleteScheduleById(@PathVariable int id) {
         try {
             scheduleService.deleteScheduleById(id);
         } catch(ScheduleNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
-        }catch (VisitAssignedToScheduleException e) {
+        } catch (VisitAssignedToScheduleException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }

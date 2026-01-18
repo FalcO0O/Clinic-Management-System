@@ -107,6 +107,16 @@ public class ScheduleService {
         scheduleRepository.save(scheduleRequest.toSchedule(doctor, consultingRoom));
     }
 
+    /**
+     * Usuwa wybrany dyżur z systemu na podstawie jego identyfikatora.
+     * Metoda najpierw sprawdza istnienie dyżuru, a następnie weryfikuje, czy nie są do niego
+     * przypisane żadne wizyty pacjentów. Jeśli dyżur posiada zaplanowane wizyty, 
+     * operacja zostaje przerwana, aby zapobiec utracie danych o wizytach.
+     *
+     * @param scheduleId Identyfikator dyżuru do usunięcia.
+     * @throws ScheduleNotFoundException jeśli dyżur o podanym ID nie istnieje w bazie danych.
+     * @throws VisitAssignedToScheduleException jeśli do ram czasowych dyżuru przypisane są już wizyty.
+     */
     public void deleteScheduleById(int scheduleId){
         if(!scheduleRepository.existsById(scheduleId)){
             throw new ScheduleNotFoundException("Schedule with id " + scheduleId + " does not exist");
