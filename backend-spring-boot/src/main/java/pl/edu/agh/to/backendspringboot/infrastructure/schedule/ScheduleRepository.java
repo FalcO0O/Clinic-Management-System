@@ -9,6 +9,7 @@ import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.ScheduleBrief;
+import pl.edu.agh.to.backendspringboot.domain.schedule.model.ScheduleDetail;
 
 import java.time.LocalTime;
 import java.time.OffsetTime;
@@ -76,4 +77,19 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
         WHERE s.consultingRoom.id = :consultingRoomId
     """)
     boolean existsByConsultingRoomId(@Param("consultingRoomId") Integer consultingRoomId);
+
+    @Query("SELECT s.id as id, s.shiftStart as shiftStart, s.shiftEnd as shiftEnd, s.consultingRoom as consultingRoom, s.doctor as doctor FROM Schedule s WHERE s.doctor.id = :doctorId")
+    List<ScheduleDetail> findAllByDoctorIdDetail(@Param("doctorId") Integer doctorId);
+
+    @Query("""
+        SELECT CASE WHEN COUNT(s) > 0 THEN TRUE ELSE FALSE END
+        FROM Schedule s
+        WHERE s.shiftStart <= :startTime
+        AND s.shiftEnd >= :endTime
+        AND s.doctor.id = :doctorId 
+        AND s.consultingRoom.id = :consultingRoomId
+    """)
+    boolean ScheduleExistsForDoctorInPeriodInRoom(int doctorId, int consultingRoomId,LocalTime startTime, LocalTime endTime);
+
+
 }

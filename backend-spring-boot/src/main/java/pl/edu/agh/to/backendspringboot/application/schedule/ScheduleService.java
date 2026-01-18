@@ -7,9 +7,13 @@ import pl.edu.agh.to.backendspringboot.domain.consulting_room.exception.Consulti
 import pl.edu.agh.to.backendspringboot.domain.doctor.exception.DoctorNotFoundException;
 import pl.edu.agh.to.backendspringboot.domain.schedule.exception.ConflictInScheduleTimePeriod;
 import pl.edu.agh.to.backendspringboot.domain.schedule.exception.InvalidScheduleTimePeriod;
+import pl.edu.agh.to.backendspringboot.domain.schedule.exception.ScheduleNotFoundException;
+import pl.edu.agh.to.backendspringboot.domain.schedule.exception.VisitAssignedToScheduleException;
+import pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule;
 import pl.edu.agh.to.backendspringboot.infrastructure.consulting_room.ConsultingRoomRepository;
 import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
 import pl.edu.agh.to.backendspringboot.infrastructure.schedule.ScheduleRepository;
+import pl.edu.agh.to.backendspringboot.infrastructure.visit.VisitRepository;
 import pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.ConsultingRoomBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.AvailabilityResponse;
@@ -30,6 +34,7 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final DoctorRepository doctorRepository;
     private final ConsultingRoomRepository consultingRoomRepository;
+    private final VisitRepository visitRepository;
 
     /**
      * Konstruktor serwisu wstrzykujący wymagane repozytoria.
@@ -38,10 +43,11 @@ public class ScheduleService {
      * @param doctorRepository Repozytorium do weryfikacji lekarzy.
      * @param consultingRoomRepository Repozytorium do weryfikacji gabinetów.
      */
-    public ScheduleService(ScheduleRepository scheduleRepository, DoctorRepository doctorRepository, ConsultingRoomRepository consultingRoomRepository) {
+    public ScheduleService(ScheduleRepository scheduleRepository, DoctorRepository doctorRepository, ConsultingRoomRepository consultingRoomRepository, VisitRepository visitRepository) {
         this.scheduleRepository = scheduleRepository;
         this.doctorRepository = doctorRepository;
         this.consultingRoomRepository = consultingRoomRepository;
+        this.visitRepository = visitRepository;
     }
 
     /**
@@ -99,6 +105,17 @@ public class ScheduleService {
         }
 
         scheduleRepository.save(scheduleRequest.toSchedule(doctor, consultingRoom));
+    }
+
+    public void deleteScheduleById(int scheduleId){
+        if(!scheduleRepository.existsById(scheduleId)){
+            throw new ScheduleNotFoundException("Schedule with id " + scheduleId + " does not exist");
+        }
+        Schedule schedule = scheduleRepository.findById(scheduleId).get();
+        if(visitRepository.visitExistsForSchedule(schedule.getDoctor().getId(),schedule.getShiftStart(), schedule.getShiftEnd())){
+            throw new VisitAssignedToScheduleException("Cannot delete schedule with assigned visits");
+        }
+        scheduleRepository.deleteById(scheduleId);
     }
 
     /**
