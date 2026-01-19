@@ -19,10 +19,14 @@ import pl.edu.agh.to.backendspringboot.domain.schedule.exception.ConflictInSched
 import pl.edu.agh.to.backendspringboot.domain.schedule.exception.InvalidScheduleTimePeriod;
 import pl.edu.agh.to.backendspringboot.domain.schedule.exception.ScheduleNotFoundException;
 import pl.edu.agh.to.backendspringboot.domain.schedule.exception.VisitAssignedToScheduleException;
+import pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.AvailabilityResponse;
+import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleDetailResponse;
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleRequest;
+import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleResponse;
 
 import java.time.LocalTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("schedules")
@@ -39,6 +43,17 @@ public class ScheduleController {
      */
     public ScheduleController(ScheduleService scheduleService){
         this.scheduleService = scheduleService;
+    }
+
+    /**
+     * Pobiera listę wszystkich dyżurów w formacie skróconym.
+     *
+     * @return Lista obiektów {@link ScheduleResponse}.
+     */
+    @Operation(summary = "Pobierz wszystkie dyżury", description = "Zwraca listę wszystkich dyżurów lekarzy (widok skrócony).")
+    @GetMapping
+    public List<ScheduleDetailResponse> getAllSchedules() {
+        return scheduleService.getAllSchedules();
     }
 
     /**

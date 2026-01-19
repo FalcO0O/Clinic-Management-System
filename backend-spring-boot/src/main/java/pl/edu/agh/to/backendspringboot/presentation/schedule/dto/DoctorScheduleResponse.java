@@ -1,6 +1,5 @@
 package pl.edu.agh.to.backendspringboot.presentation.schedule.dto;
 
-import pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.ScheduleBrief;
 import pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.ConsultingRoomBriefResponse;
 

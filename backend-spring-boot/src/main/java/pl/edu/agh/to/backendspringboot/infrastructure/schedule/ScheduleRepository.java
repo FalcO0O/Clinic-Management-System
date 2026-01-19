@@ -10,12 +10,24 @@ import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.ScheduleBrief;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.ScheduleDetail;
+import pl.edu.agh.to.backendspringboot.domain.visit.VisitBrief;
 
 import java.time.LocalTime;
 import java.time.OffsetTime;
 import java.util.List;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
+
+    @Query("""
+        SELECT s.id as id,
+        s.shiftStart as shiftStart,
+        s.shiftEnd as shiftEnd,
+        s.consultingRoom as consultingRoom,
+        s.doctor as doctor
+        FROM Schedule s
+    """)
+    List<ScheduleDetail> findAllScheduleDetails();
+
     @Query("""
     SELECT d
     FROM Doctor d

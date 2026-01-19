@@ -10,16 +10,22 @@ import pl.edu.agh.to.backendspringboot.domain.schedule.exception.InvalidSchedule
 import pl.edu.agh.to.backendspringboot.domain.schedule.exception.ScheduleNotFoundException;
 import pl.edu.agh.to.backendspringboot.domain.schedule.exception.VisitAssignedToScheduleException;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule;
+import pl.edu.agh.to.backendspringboot.domain.schedule.model.ScheduleBrief;
+import pl.edu.agh.to.backendspringboot.domain.visit.VisitBrief;
 import pl.edu.agh.to.backendspringboot.infrastructure.consulting_room.ConsultingRoomRepository;
 import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
 import pl.edu.agh.to.backendspringboot.infrastructure.schedule.ScheduleRepository;
 import pl.edu.agh.to.backendspringboot.infrastructure.visit.VisitRepository;
 import pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.ConsultingRoomBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse;
+import pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.AvailabilityResponse;
+import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleDetailResponse;
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleRequest;
+import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleResponse;
 
 import java.time.LocalTime;
+import java.util.List;
 
 /**
  * Serwis realizujący logikę biznesową związaną z harmonogramem wizyt i dyżurów.
@@ -48,6 +54,15 @@ public class ScheduleService {
         this.doctorRepository = doctorRepository;
         this.consultingRoomRepository = consultingRoomRepository;
         this.visitRepository = visitRepository;
+    }
+
+    /**
+     * Pobiera listę wszystkich dyżurów zarejestrowanych w systemie.
+     *
+     * @return Lista obiektów {@link VisitBrief} reprezentujących wizyty.
+     */
+    public List<ScheduleDetailResponse> getAllSchedules() {
+        return scheduleRepository.findAllScheduleDetails().stream().map(ScheduleDetailResponse::from).toList();
     }
 
     /**
@@ -149,4 +164,5 @@ public class ScheduleService {
         }
 
     }
+
 }

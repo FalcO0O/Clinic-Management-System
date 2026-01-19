@@ -1,12 +1,9 @@
 package pl.edu.agh.to.backendspringboot.presentation.visit.dto;
 
-import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoom;
-import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
-import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief;
+
 import pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.ConsultingRoomBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class AvailabilityResponse {
@@ -35,6 +32,10 @@ public class AvailabilityResponse {
 
     public DoctorBriefResponse getDoctor() {
         return doctor;
+    }
+
+    public ConsultingRoomBriefResponse getConsultingRoom() {
+        return consultingRoom;
     }
 
 }
