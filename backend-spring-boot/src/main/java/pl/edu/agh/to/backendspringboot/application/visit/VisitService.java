@@ -139,6 +139,8 @@ public class VisitService {
      * @throws VisitNotInScheduleException jeśli lekarz nie ma zdefiniowanego dyżuru w wybranym terminie i gabinecie.
      */
     public void addVisit(@Valid VisitRequest visitDataRequest) {
+        dateValidator.validateDateRange(visitDataRequest.visitStart());
+
         if(!doctorRepository.existsById(visitDataRequest.doctorId())){
             throw new DoctorNotFoundException("Doctor with id " + visitDataRequest.doctorId() + " not found.");
         }

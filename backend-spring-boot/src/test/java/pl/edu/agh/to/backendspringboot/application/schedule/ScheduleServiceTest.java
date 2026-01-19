@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import pl.edu.agh.to.backendspringboot.application.shared.DateValidator;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.exception.ConsultingRoomNotFoundException;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoom;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoomBrief;
@@ -48,6 +49,9 @@ class ScheduleServiceTest {
 
     @Mock
     private VisitRepository visitRepository;
+
+    @Mock
+    private DateValidator dateValidator;
 
     @InjectMocks
     private ScheduleService scheduleService;
@@ -279,5 +283,38 @@ class ScheduleServiceTest {
         // when & then
         assertThrows(VisitAssignedToScheduleException.class,
                 () -> scheduleService.deleteScheduleById(scheduleId));
+    }
+
+
+    @Test
+    void shouldValidateDateWhenCheckingAvailability() {
+        // given
+        LocalDateTime start = LocalDateTime.now().plusDays(1);
+        LocalDateTime end = start.plusHours(2);
+
+        // when
+        scheduleService.getAvailableDoctorsAndConsultingRooms(start, end);
+
+        // then
+        verify(dateValidator, times(1)).validateDateRange(start);
+    }
+
+    @Test
+    void shouldValidateDateWhenAddingSchedule() {
+        // given
+        LocalDateTime start = LocalDateTime.now().plusDays(1);
+        LocalDateTime end = start.plusHours(4);
+        ScheduleRequest request = new ScheduleRequest(start, end, 1, 10);
+
+        Doctor doctor = mock(Doctor.class);
+        ConsultingRoom room = mock(ConsultingRoom.class);
+        when(doctorRepository.findById(1)).thenReturn(Optional.of(doctor));
+        when(consultingRoomRepository.findById(10)).thenReturn(Optional.of(room));
+
+        // when
+        scheduleService.addSchedule(request);
+
+        // then
+        verify(dateValidator, times(1)).validateDateRange(start);
     }
 }
