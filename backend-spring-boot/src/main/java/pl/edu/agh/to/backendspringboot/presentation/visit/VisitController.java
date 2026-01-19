@@ -50,7 +50,7 @@ public class VisitController {
      * Metoda wykorzystuje programowanie reaktywne (RxJava) do asynchronicznego pobrania
      * i przetworzenia dostępnych slotów czasowych u wszystkich lekarzy danej specjalizacji.
      *
-     * @param specialization Nazwa specjalizacji (zgodna z enum MedicalSpecialization, np. "CARDIOLOGIST").
+     * @param specialization Nazwa specjalizacji (zgodna z enum MedicalSpecialization, np. "CARDIOLOGIST","kardiolog").
      * @return Strumień (Observable) zawierający listę dostępnych terminów.
      */
     @Operation(
@@ -58,10 +58,10 @@ public class VisitController {
             description = "Zwraca listę wolnych terminów wizyt dla lekarzy o wskazanej specjalizacji.",
             parameters = @Parameter(
                     name = "specialization",
-                    description = "Specjalizacja lekarska (wielkimi literami)",
+                    description = "Specjalizacja lekarska w języku polskim lub angielskim, ignorowana wielkość liter",
                     required = true,
                     in = ParameterIn.QUERY,
-                    example = "CARDIOLOGIST"
+                    example = "Cardiologist"
             )
     )
     @GetMapping("/availability")

@@ -59,4 +59,24 @@ public enum MedicalSpecialization {
         return visitTime;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Konwerter nazwy specjalizacji na typ enum
+     * @param value - nazwa specjalizacji w języku polskim lub angielskim, niezależna od wielkości liter
+     * @return specjalizacja
+     */
+    public static MedicalSpecialization getEnum(String value) {
+        if (value == null) throw new IllegalArgumentException("Specialization cannot be null");
+
+        for (MedicalSpecialization v : values()) {
+            if (v.name.equalsIgnoreCase(value) || v.name().equalsIgnoreCase(value)) {
+                return v;
+            }
+        }
+        throw new IllegalArgumentException("Unknown specialization: " + value);
+    }
+
 }
