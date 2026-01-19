@@ -4,29 +4,29 @@ package pl.edu.agh.to.backendspringboot.presentation.visit.dto;
 import pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.ConsultingRoomBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 public class AvailabilityResponse {
     private DoctorBriefResponse doctor;
 
     private ConsultingRoomBriefResponse consultingRoom;
 
-    private LocalTime visitStart;
+    private LocalDateTime visitStart;
 
-    private LocalTime visitEnd;
+    private LocalDateTime visitEnd;
 
-    public AvailabilityResponse(DoctorBriefResponse doctor, ConsultingRoomBriefResponse consultingRoom, LocalTime visitStart, LocalTime visitEnd) {
+    public AvailabilityResponse(DoctorBriefResponse doctor, ConsultingRoomBriefResponse consultingRoom, LocalDateTime visitStart, LocalDateTime visitEnd) {
         this.doctor = doctor;
         this.consultingRoom = consultingRoom;
         this.visitStart = visitStart;
         this.visitEnd = visitEnd;
     }
 
-    public LocalTime getVisitStart() {
+    public LocalDateTime getVisitStart() {
         return visitStart;
     }
 
-    public LocalTime getVisitEnd() {
+    public LocalDateTime getVisitEnd() {
         return visitEnd;
     }
 

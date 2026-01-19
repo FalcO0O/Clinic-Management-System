@@ -1,16 +1,15 @@
 package pl.edu.agh.to.backendspringboot.presentation.visit.dto;
 
-import pl.edu.agh.to.backendspringboot.domain.visit.VisitBrief;
 import pl.edu.agh.to.backendspringboot.domain.visit.VisitBriefPatient;
 import pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.ConsultingRoomBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 public record VisitBriefPatientResponse(
                                         int id,
-                                        LocalTime visitStart,
-                                        LocalTime visitEnd,
+                                        LocalDateTime visitStart,
+                                        LocalDateTime visitEnd,
                                         ConsultingRoomBriefResponse consultingRoom,
                                         DoctorBriefResponse doctor
 )

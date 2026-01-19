@@ -7,7 +7,7 @@ import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
 import pl.edu.agh.to.backendspringboot.domain.patient.model.Patient;
 import pl.edu.agh.to.backendspringboot.domain.visit.Visit;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 public record VisitRequest(
         int doctorId,
@@ -20,7 +20,7 @@ public record VisitRequest(
                 example = "08:00"
         )
         @DateTimeFormat(pattern ="HH:mm")
-        LocalTime visitStart,
+        LocalDateTime visitStart,
 
         @Schema(
                 description = "Godzina zakończenia wizyty",
@@ -29,7 +29,7 @@ public record VisitRequest(
                 example = "08:30"
         )
         @DateTimeFormat(pattern ="HH:mm")
-        LocalTime visitEnd
+        LocalDateTime visitEnd
 
 ) {
     public Visit toEntity(Doctor doctor, Patient patient, ConsultingRoom consultingRoom)

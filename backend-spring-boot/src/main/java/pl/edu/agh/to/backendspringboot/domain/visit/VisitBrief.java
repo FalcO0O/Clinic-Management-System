@@ -2,14 +2,14 @@ package pl.edu.agh.to.backendspringboot.domain.visit;
 
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoomBrief;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 public interface VisitBrief {
     Integer getId();
 
-    LocalTime getVisitStart();
+    LocalDateTime getVisitStart();
 
-    LocalTime getVisitEnd();
+    LocalDateTime getVisitEnd();
 
     ConsultingRoomBrief getConsultingRoom();
 }

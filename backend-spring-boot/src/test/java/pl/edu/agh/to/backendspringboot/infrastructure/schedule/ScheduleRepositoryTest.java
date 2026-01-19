@@ -13,7 +13,8 @@ import pl.edu.agh.to.backendspringboot.domain.doctor.model.MedicalSpecialization
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule;
 import pl.edu.agh.to.backendspringboot.domain.shared.model.Address;
 
-import java.time.LocalTime;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +28,8 @@ class ScheduleRepositoryTest {
     @Autowired
     private ScheduleRepository scheduleRepository;
 
+    // Ustawiamy stałą datę dla testów
+    private final LocalDate TEST_DATE = LocalDate.of(2025, 1, 20);
 
     @Test
     void shouldReturnAvailableDoctorsInPeriod() {
@@ -45,7 +48,9 @@ class ScheduleRepositoryTest {
         );
         entityManager.persist(busyDoctor);
 
-        Schedule schedule = new Schedule(busyDoctor, room, LocalTime.of(10, 0), LocalTime.of(12, 0));
+        Schedule schedule = new Schedule(busyDoctor, room,
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(10, 0)),
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(12, 0)));
         entityManager.persist(schedule);
 
         Doctor freeDoctor = new Doctor(
@@ -61,7 +66,8 @@ class ScheduleRepositoryTest {
 
         // when
         List<DoctorBrief> result = scheduleRepository.findAvailableDoctorsInPeriod(
-                LocalTime.of(11, 0), LocalTime.of(13, 0)
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(11, 0)),
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(13, 0))
         );
 
         // then
@@ -84,7 +90,10 @@ class ScheduleRepositoryTest {
 
         ConsultingRoom busyRoom = new ConsultingRoom("101", new MedicalFacilities(true, false, false, false, false));
         entityManager.persist(busyRoom);
-        entityManager.persist(new Schedule(doctor, busyRoom, LocalTime.of(8, 0), LocalTime.of(9, 0)));
+
+        entityManager.persist(new Schedule(doctor, busyRoom,
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(8, 0)),
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(9, 0))));
 
         ConsultingRoom freeRoom = new ConsultingRoom("202", new MedicalFacilities(false, false, false, false, false));
         entityManager.persist(freeRoom);
@@ -93,7 +102,8 @@ class ScheduleRepositoryTest {
 
         // when
         List<ConsultingRoomBrief> result = scheduleRepository.findAvailableConsultingRoomsInPeriod(
-                LocalTime.of(8, 30), LocalTime.of(9, 30)
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(8, 30)),
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(9, 30))
         );
 
         // then
@@ -117,17 +127,22 @@ class ScheduleRepositoryTest {
         ConsultingRoom room = new ConsultingRoom("101", new MedicalFacilities(true, false, false, false, false));
         entityManager.persist(room);
 
-        entityManager.persist(new Schedule(doctor, room, LocalTime.of(12, 0), LocalTime.of(14, 0)));
+        entityManager.persist(new Schedule(doctor, room,
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(12, 0)),
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(14, 0))));
         entityManager.flush();
 
         // when & then
         boolean overlap1 = scheduleRepository.existsScheduleInPeriodForDoctor(
-                LocalTime.of(12, 30), LocalTime.of(13, 30), doctor.getId());
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(12, 30)),
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(13, 30)),
+                doctor.getId());
         assertThat(overlap1).isTrue();
 
-
         boolean overlap2 = scheduleRepository.existsScheduleInPeriodForDoctor(
-                LocalTime.of(13, 0), LocalTime.of(15, 0), doctor.getId());
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(13, 0)),
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(15, 0)),
+                doctor.getId());
         assertThat(overlap2).isTrue();
     }
 
@@ -146,14 +161,16 @@ class ScheduleRepositoryTest {
         ConsultingRoom room = new ConsultingRoom("101", new MedicalFacilities(true, false, false, false, false));
         entityManager.persist(room);
 
-        // Dyżur 12:00 - 14:00
-        entityManager.persist(new Schedule(doctor, room, LocalTime.of(12, 0), LocalTime.of(14, 0)));
+        entityManager.persist(new Schedule(doctor, room,
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(12, 0)),
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(14, 0))));
         entityManager.flush();
 
         // when
-        // Pytamy o 14:00 - 15:00 (stykają się, ale nie nakładają)
         boolean exists = scheduleRepository.existsScheduleInPeriodForDoctor(
-                LocalTime.of(14, 0), LocalTime.of(15, 0), doctor.getId());
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(14, 0)),
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(15, 0)),
+                doctor.getId());
 
         // then
         assertThat(exists).isFalse();
@@ -174,13 +191,16 @@ class ScheduleRepositoryTest {
         ConsultingRoom room = new ConsultingRoom("101", new MedicalFacilities(true, false, false, false, false));
         entityManager.persist(room);
 
-        // Dyżur w tym gabinecie 10:00 - 11:00
-        entityManager.persist(new Schedule(doctor, room, LocalTime.of(10, 0), LocalTime.of(11, 0)));
+        entityManager.persist(new Schedule(doctor, room,
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(10, 0)),
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(11, 0))));
         entityManager.flush();
 
         // when
         boolean exists = scheduleRepository.existsScheduleInPeriodForConsultingDoctor(
-                LocalTime.of(10, 30), LocalTime.of(11, 30), room.getId());
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(10, 30)),
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(11, 30)),
+                room.getId());
 
         // then
         assertThat(exists).isTrue();
@@ -192,9 +212,19 @@ class ScheduleRepositoryTest {
         ConsultingRoom room = new ConsultingRoom("101", new MedicalFacilities(true,false,false,false,false));
         entityManager.persist(doc);
         entityManager.persist(room);
-        entityManager.persist(new Schedule(doc, room, LocalTime.of(8,0), LocalTime.of(12,0)));
+
+        // Dyżur 08:00 - 12:00
+        entityManager.persist(new Schedule(doc, room,
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(8, 0)),
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(12, 0))));
         entityManager.flush();
-        boolean result = scheduleRepository.ScheduleExistsForDoctorInPeriodInRoom(doc.getId(), room.getId(), LocalTime.of(9,0), LocalTime.of(9,30));
+
+        boolean result = scheduleRepository.ScheduleExistsForDoctorInPeriodInRoom(
+                doc.getId(),
+                room.getId(),
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(9, 0)),
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(9, 30))
+        );
         assertThat(result).isTrue();
     }
 
@@ -204,7 +234,10 @@ class ScheduleRepositoryTest {
         ConsultingRoom room = new ConsultingRoom("101", new MedicalFacilities(true,false,false,false,false));
         entityManager.persist(doc);
         entityManager.persist(room);
-        entityManager.persist(new Schedule(doc, room, LocalTime.of(8,0), LocalTime.of(12,0)));
+
+        entityManager.persist(new Schedule(doc, room,
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(8, 0)),
+                LocalDateTime.of(TEST_DATE, java.time.LocalTime.of(12, 0))));
         entityManager.flush();
 
         assertThat(scheduleRepository.existsByDoctorId(doc.getId())).isTrue();

@@ -4,9 +4,8 @@ import jakarta.persistence.*;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoom;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
 import pl.edu.agh.to.backendspringboot.domain.patient.model.Patient;
-import pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Entity
 public class Visit {
@@ -28,11 +27,11 @@ public class Visit {
     private ConsultingRoom consultingRoom;
 
     @Column(name = Columns.VISIT_START)
-    private LocalTime visitStart;
+    private LocalDateTime visitStart;
     @Column(name = Columns.VISIT_END)
-    private LocalTime visitEnd;
+    private LocalDateTime visitEnd;
 
-    public Visit(Patient patient, Doctor doctor, LocalTime visitStart, LocalTime visitEnd, ConsultingRoom consultingRoom) {
+    public Visit(Patient patient, Doctor doctor, LocalDateTime visitStart, LocalDateTime visitEnd, ConsultingRoom consultingRoom) {
         this.patient = patient;
         this.doctor = doctor;
         this.visitStart = visitStart;
@@ -69,10 +68,10 @@ public class Visit {
         return doctor;
     }
 
-    public LocalTime getVisitStart() {
+    public LocalDateTime getVisitStart() {
         return visitStart;}
 
-    public LocalTime getVisitEnd() {
+    public LocalDateTime getVisitEnd() {
         return visitEnd;
     }
 

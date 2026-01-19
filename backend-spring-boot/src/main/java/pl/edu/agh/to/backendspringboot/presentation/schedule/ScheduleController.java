@@ -19,13 +19,12 @@ import pl.edu.agh.to.backendspringboot.domain.schedule.exception.ConflictInSched
 import pl.edu.agh.to.backendspringboot.domain.schedule.exception.InvalidScheduleTimePeriod;
 import pl.edu.agh.to.backendspringboot.domain.schedule.exception.ScheduleNotFoundException;
 import pl.edu.agh.to.backendspringboot.domain.schedule.exception.VisitAssignedToScheduleException;
-import pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.AvailabilityResponse;
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleDetailResponse;
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleRequest;
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleResponse;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -97,8 +96,8 @@ public class ScheduleController {
     )
     @GetMapping("/availability")
     public AvailabilityResponse getAvailableDoctorsAndConsultingRooms(
-            @RequestParam("startTime") @DateTimeFormat(pattern ="HH:mm") LocalTime startTime,
-            @RequestParam("endTime") @DateTimeFormat(pattern ="HH:mm") LocalTime endTime){
+            @RequestParam("startTime") @DateTimeFormat(pattern ="HH:mm") LocalDateTime startTime,
+            @RequestParam("endTime") @DateTimeFormat(pattern ="HH:mm") LocalDateTime endTime){
         try {
             return scheduleService.getAvailableDoctorsAndConsultingRooms(startTime, endTime);
         }catch(InvalidScheduleTimePeriod e) {

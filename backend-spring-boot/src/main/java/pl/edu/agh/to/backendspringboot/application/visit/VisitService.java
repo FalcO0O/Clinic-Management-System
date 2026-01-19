@@ -25,7 +25,7 @@ import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefRespon
 import pl.edu.agh.to.backendspringboot.presentation.visit.dto.AvailabilityResponse;
 import pl.edu.agh.to.backendspringboot.presentation.visit.dto.VisitRequest;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -171,17 +171,18 @@ public class VisitService {
      * @param duration Czas trwania pojedynczej wizyty w minutach.
      * @return Lista potencjalnych terminów wizyt w ramach danego dyżuru.
      */
-    private List<AvailabilityResponse> getAllPossibleVisitsForSchedule(ScheduleDetail schedule, int duration){
-        List<AvailabilityResponse> possibleVisits = new ArrayList<AvailabilityResponse>();
-        int start = schedule.getShiftStart().getHour()*60 + schedule.getShiftStart().getMinute();
-        int end = schedule.getShiftEnd().getHour()*60 + schedule.getShiftEnd().getMinute();
-        for(int time = start; time + duration <= end; time += duration){
-            int hour = time / 60;
-            int minute = time % 60;
-            LocalTime visitStart = LocalTime.of(hour, minute);
-            LocalTime visitEnd = visitStart.plusMinutes(duration);
-            possibleVisits.add(createAvailabilityResponse(schedule, visitStart, visitEnd));
+    private List<AvailabilityResponse> getAllPossibleVisitsForSchedule(ScheduleDetail schedule, int duration) {
+        List<AvailabilityResponse> possibleVisits = new ArrayList<>();
+
+        LocalDateTime currentSlotStart = schedule.getShiftStart();
+        LocalDateTime shiftEnd = schedule.getShiftEnd();
+
+        while (!currentSlotStart.plusMinutes(duration).isAfter(shiftEnd)) {
+            LocalDateTime currentSlotEnd = currentSlotStart.plusMinutes(duration);
+            possibleVisits.add(createAvailabilityResponse(schedule, currentSlotStart, currentSlotEnd));
+            currentSlotStart = currentSlotEnd;
         }
+
         return possibleVisits;
     }
 
@@ -193,7 +194,7 @@ public class VisitService {
      * @param visitEnd Godzina zakończenia wizyty.
      * @return Obiekt {@link AvailabilityResponse} z danymi lekarza, gabinetu i czasem.
      */
-    private AvailabilityResponse createAvailabilityResponse(ScheduleDetail schedule, LocalTime visitStart, LocalTime visitEnd){
+    private AvailabilityResponse createAvailabilityResponse(ScheduleDetail schedule, LocalDateTime visitStart, LocalDateTime visitEnd){
         return new AvailabilityResponse(
                 new DoctorBriefResponse(
                         schedule.getDoctor().getId(),

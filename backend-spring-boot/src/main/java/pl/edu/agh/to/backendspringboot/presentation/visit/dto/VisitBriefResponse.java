@@ -4,12 +4,13 @@ import pl.edu.agh.to.backendspringboot.domain.visit.VisitBrief;
 import pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.ConsultingRoomBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public record VisitBriefResponse(
     int id,
-    LocalTime visitStart,
-    LocalTime visitEnd,
+    LocalDateTime visitStart,
+    LocalDateTime visitEnd,
     ConsultingRoomBriefResponse consultingRoom
 )
 {

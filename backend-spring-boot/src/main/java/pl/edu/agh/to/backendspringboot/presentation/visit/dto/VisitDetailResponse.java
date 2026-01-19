@@ -5,12 +5,12 @@ import pl.edu.agh.to.backendspringboot.presentation.consulting_room.dto.Consulti
 import pl.edu.agh.to.backendspringboot.presentation.doctor.dto.DoctorBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientBriefResponse;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 public record VisitDetailResponse(
         int id,
-        LocalTime visitStart,
-        LocalTime visitEnd,
+        LocalDateTime visitStart,
+        LocalDateTime visitEnd,
         ConsultingRoomBriefResponse consultingRoom,
         DoctorBriefResponse doctor,
         PatientBriefResponse patient

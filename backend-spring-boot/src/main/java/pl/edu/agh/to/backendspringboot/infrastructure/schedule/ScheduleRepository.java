@@ -3,17 +3,13 @@ package pl.edu.agh.to.backendspringboot.infrastructure.schedule;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoom;
 import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRoomBrief;
-import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.DoctorBrief;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.ScheduleBrief;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.ScheduleDetail;
-import pl.edu.agh.to.backendspringboot.domain.visit.VisitBrief;
 
-import java.time.LocalTime;
-import java.time.OffsetTime;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
@@ -39,7 +35,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
         AND s.shiftEnd > :startTime
     )
     """)
-    List<DoctorBrief> findAvailableDoctorsInPeriod(LocalTime startTime, LocalTime endTime);
+    List<DoctorBrief> findAvailableDoctorsInPeriod(LocalDateTime startTime, LocalDateTime endTime);
 
     @Query("""
     SELECT cr
@@ -52,7 +48,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
         AND s.shiftEnd > :startTime
     )
     """)
-    List<ConsultingRoomBrief> findAvailableConsultingRoomsInPeriod(LocalTime startTime, LocalTime endTime);
+    List<ConsultingRoomBrief> findAvailableConsultingRoomsInPeriod(LocalDateTime startTime, LocalDateTime endTime);
 
 
     @Query("""
@@ -62,7 +58,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
         AND s.shiftStart < :endTime
         AND s.shiftEnd > :startTime
     """)
-    boolean existsScheduleInPeriodForDoctor(LocalTime startTime, LocalTime endTime,int doctorId);
+    boolean existsScheduleInPeriodForDoctor(LocalDateTime startTime, LocalDateTime endTime,int doctorId);
 
     @Query("""
         SELECT CASE WHEN COUNT(s)>0 THEN TRUE ELSE FALSE END
@@ -71,7 +67,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
         AND s.shiftStart < :endTime
         AND s.shiftEnd > :startTime
     """)
-    boolean existsScheduleInPeriodForConsultingDoctor(LocalTime startTime, LocalTime endTime,int consultingRoomId);
+    boolean existsScheduleInPeriodForConsultingDoctor(LocalDateTime startTime, LocalDateTime endTime,int consultingRoomId);
 
     @Query("SELECT s FROM Schedule s WHERE s.doctor.id = :doctorId")
     List<ScheduleBrief> findAllByDoctorId(@Param("doctorId") Integer doctorId);
@@ -101,7 +97,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
         AND s.doctor.id = :doctorId 
         AND s.consultingRoom.id = :consultingRoomId
     """)
-    boolean ScheduleExistsForDoctorInPeriodInRoom(int doctorId, int consultingRoomId,LocalTime startTime, LocalTime endTime);
+    boolean ScheduleExistsForDoctorInPeriodInRoom(int doctorId, int consultingRoomId, LocalDateTime startTime, LocalDateTime endTime);
 
 
 }

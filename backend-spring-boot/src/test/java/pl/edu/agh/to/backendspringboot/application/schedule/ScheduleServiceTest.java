@@ -24,6 +24,8 @@ import pl.edu.agh.to.backendspringboot.infrastructure.visit.VisitRepository;
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.AvailabilityResponse;
 import pl.edu.agh.to.backendspringboot.presentation.schedule.dto.ScheduleRequest;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -50,11 +52,13 @@ class ScheduleServiceTest {
     @InjectMocks
     private ScheduleService scheduleService;
 
+    private final LocalDate TEST_DATE = LocalDate.of(2025, 1, 20);
+
     @Test
     void shouldThrowExceptionWhenEndTimeBeforeStartTime() {
         // given
-        LocalTime start = LocalTime.of(10, 0);
-        LocalTime end = LocalTime.of(9, 0);
+        LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(10, 0));
+        LocalDateTime end = LocalDateTime.of(TEST_DATE, LocalTime.of(9, 0));
 
         // when & then
         assertThrows(InvalidScheduleTimePeriod.class,
@@ -64,8 +68,8 @@ class ScheduleServiceTest {
     @Test
     void shouldThrowExceptionWhenPeriodIsTooShort() {
         // given
-        LocalTime start = LocalTime.of(10, 0);
-        LocalTime end = LocalTime.of(10, 29);
+        LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(10, 0));
+        LocalDateTime end = LocalDateTime.of(TEST_DATE, LocalTime.of(10, 29));
 
         // when & then
         assertThrows(InvalidScheduleTimePeriod.class,
@@ -75,8 +79,8 @@ class ScheduleServiceTest {
     @Test
     void shouldThrowExceptionWhenPeriodIsTooLong() {
         // given
-        LocalTime start = LocalTime.of(8, 0);
-        LocalTime end = LocalTime.of(20, 1); // 12h 1min
+        LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(8, 0));
+        LocalDateTime end = LocalDateTime.of(TEST_DATE, LocalTime.of(20, 1)); // 12h 1min
 
         // when & then
         assertThrows(InvalidScheduleTimePeriod.class,
@@ -86,8 +90,8 @@ class ScheduleServiceTest {
     @Test
     void shouldReturnAvailableResourcesWhenTimeIsValid() {
         // given
-        LocalTime start = LocalTime.of(8, 0);
-        LocalTime end = LocalTime.of(10, 0);
+        LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(8, 0));
+        LocalDateTime end = LocalDateTime.of(TEST_DATE, LocalTime.of(10, 0));
 
         DoctorBrief doctorMock = mock(DoctorBrief.class);
         when(doctorMock.getId()).thenReturn(1);
@@ -96,7 +100,7 @@ class ScheduleServiceTest {
         when(doctorMock.getSpecialization()).thenReturn(MedicalSpecialization.CARDIOLOGY);
 
         ConsultingRoomBrief roomMock = mock(ConsultingRoomBrief.class);
-        MedicalFacilities facilitiesMock = mock(MedicalFacilities.class); // Unikamy NPE w mapperze
+        MedicalFacilities facilitiesMock = mock(MedicalFacilities.class);
         when(roomMock.getId()).thenReturn(1);
         when(roomMock.getRoomNumber()).thenReturn("101");
         when(roomMock.getMedicalFacilities()).thenReturn(facilitiesMock);
@@ -119,17 +123,17 @@ class ScheduleServiceTest {
     void shouldAddScheduleWhenNoConflicts() {
         // given
         ScheduleRequest request = new ScheduleRequest(
-                LocalTime.of(8, 0), LocalTime.of(9, 0), 1, 10
+                LocalDateTime.of(TEST_DATE, LocalTime.of(8, 0)),
+                LocalDateTime.of(TEST_DATE, LocalTime.of(9, 0)),
+                1, 10
         );
 
         Doctor doctorMock = mock(Doctor.class);
         ConsultingRoom roomMock = mock(ConsultingRoom.class);
 
-        // Znaleziono lekarza i gabinet
         when(doctorRepository.findById(1)).thenReturn(Optional.of(doctorMock));
         when(consultingRoomRepository.findById(10)).thenReturn(Optional.of(roomMock));
 
-        // Brak konfliktów
         when(scheduleRepository.existsScheduleInPeriodForConsultingDoctor(any(), any(), eq(10))).thenReturn(false);
         when(scheduleRepository.existsScheduleInPeriodForDoctor(any(), any(), eq(1))).thenReturn(false);
 
@@ -144,7 +148,9 @@ class ScheduleServiceTest {
     void shouldThrowException_WhenDoctorNotFound() {
         // given
         ScheduleRequest request = new ScheduleRequest(
-                LocalTime.of(8, 0), LocalTime.of(9, 0), 99, 10
+                LocalDateTime.of(TEST_DATE, LocalTime.of(8, 0)),
+                LocalDateTime.of(TEST_DATE, LocalTime.of(9, 0)),
+                99, 10
         );
         when(doctorRepository.findById(99)).thenReturn(Optional.empty());
 
@@ -157,7 +163,9 @@ class ScheduleServiceTest {
     void shouldThrowException_WhenRoomNotFound() {
         // given
         ScheduleRequest request = new ScheduleRequest(
-                LocalTime.of(8, 0), LocalTime.of(9, 0), 1, 99
+                LocalDateTime.of(TEST_DATE, LocalTime.of(8, 0)),
+                LocalDateTime.of(TEST_DATE, LocalTime.of(9, 0)),
+                1, 99
         );
         when(doctorRepository.findById(1)).thenReturn(Optional.of(mock(Doctor.class)));
         when(consultingRoomRepository.findById(99)).thenReturn(Optional.empty());
@@ -171,13 +179,14 @@ class ScheduleServiceTest {
     void shouldThrowException_WhenRoomConflictExists() {
         // given
         ScheduleRequest request = new ScheduleRequest(
-                LocalTime.of(8, 0), LocalTime.of(9, 0), 1, 10
+                LocalDateTime.of(TEST_DATE, LocalTime.of(8, 0)),
+                LocalDateTime.of(TEST_DATE, LocalTime.of(9, 0)),
+                1, 10
         );
 
         when(doctorRepository.findById(1)).thenReturn(Optional.of(mock(Doctor.class)));
         when(consultingRoomRepository.findById(10)).thenReturn(Optional.of(mock(ConsultingRoom.class)));
 
-        // Konflikt w gabinecie
         when(scheduleRepository.existsScheduleInPeriodForConsultingDoctor(
                 request.startTime(), request.endTime(), request.consultingRoomId())
         ).thenReturn(true);
@@ -191,13 +200,14 @@ class ScheduleServiceTest {
     void shouldThrowExceptionWhenDoctorConflictExists() {
         // given
         ScheduleRequest request = new ScheduleRequest(
-                LocalTime.of(8, 0), LocalTime.of(9, 0), 1, 10
+                LocalDateTime.of(TEST_DATE, LocalTime.of(8, 0)),
+                LocalDateTime.of(TEST_DATE, LocalTime.of(9, 0)),
+                1, 10
         );
 
         when(doctorRepository.findById(1)).thenReturn(Optional.of(mock(Doctor.class)));
         when(consultingRoomRepository.findById(10)).thenReturn(Optional.of(mock(ConsultingRoom.class)));
 
-        // Konflikt - doktor w tym czasie ma dyżur
         when(scheduleRepository.existsScheduleInPeriodForConsultingDoctor(any(), any(), anyInt())).thenReturn(false);
         when(scheduleRepository.existsScheduleInPeriodForDoctor(
                 request.startTime(), request.endTime(), request.doctorId())
@@ -219,10 +229,14 @@ class ScheduleServiceTest {
         when(scheduleRepository.findById(scheduleId)).thenReturn(Optional.of(schedule));
         when(schedule.getDoctor()).thenReturn(doctor);
         when(doctor.getId()).thenReturn(10);
-        when(schedule.getShiftStart()).thenReturn(LocalTime.of(8, 0));
-        when(schedule.getShiftEnd()).thenReturn(LocalTime.of(12, 0));
 
-        when(visitRepository.visitExistsForSchedule(10, LocalTime.of(8,0), LocalTime.of(12,0))).thenReturn(false);
+        LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(8, 0));
+        LocalDateTime end = LocalDateTime.of(TEST_DATE, LocalTime.of(12, 0));
+
+        when(schedule.getShiftStart()).thenReturn(start);
+        when(schedule.getShiftEnd()).thenReturn(end);
+
+        when(visitRepository.visitExistsForSchedule(10, start, end)).thenReturn(false);
 
         // when
         scheduleService.deleteScheduleById(scheduleId);
@@ -253,15 +267,17 @@ class ScheduleServiceTest {
         when(scheduleRepository.findById(scheduleId)).thenReturn(Optional.of(schedule));
         when(schedule.getDoctor()).thenReturn(doctor);
         when(doctor.getId()).thenReturn(10);
-        when(schedule.getShiftStart()).thenReturn(LocalTime.of(8, 0));
-        when(schedule.getShiftEnd()).thenReturn(LocalTime.of(12, 0));
 
-        when(visitRepository.visitExistsForSchedule(10, LocalTime.of(8,0), LocalTime.of(12,0))).thenReturn(true);
+        LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(8, 0));
+        LocalDateTime end = LocalDateTime.of(TEST_DATE, LocalTime.of(12, 0));
+
+        when(schedule.getShiftStart()).thenReturn(start);
+        when(schedule.getShiftEnd()).thenReturn(end);
+
+        when(visitRepository.visitExistsForSchedule(10, start, end)).thenReturn(true);
 
         // when & then
         assertThrows(VisitAssignedToScheduleException.class,
                 () -> scheduleService.deleteScheduleById(scheduleId));
     }
-
-
 }

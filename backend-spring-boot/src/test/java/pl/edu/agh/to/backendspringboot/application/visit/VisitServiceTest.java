@@ -30,11 +30,13 @@ import pl.edu.agh.to.backendspringboot.infrastructure.visit.VisitRepository;
 import pl.edu.agh.to.backendspringboot.presentation.visit.dto.AvailabilityResponse;
 import pl.edu.agh.to.backendspringboot.presentation.visit.dto.VisitRequest;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -57,7 +59,7 @@ class VisitServiceTest {
     @InjectMocks
     private VisitService visitService;
 
-    // --- Testy CRUD ---
+    private final LocalDate TEST_DATE = LocalDate.of(2025, 1, 20);
 
     @Test
     void shouldDeleteVisitById() {
@@ -86,18 +88,20 @@ class VisitServiceTest {
         verify(visitRepository).findById(1);
     }
 
-    // --- Testy addVisit (Walidacja) ---
-
     @Test
     void shouldThrowWhenDoctorNotFound() {
-        VisitRequest req = new VisitRequest(99, 1, 1, LocalTime.now(), LocalTime.now().plusMinutes(30));
+        LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(10, 0));
+        LocalDateTime end = start.plusMinutes(30);
+        VisitRequest req = new VisitRequest(99, 1, 1, start, end);
         when(doctorRepository.existsById(99)).thenReturn(false);
         assertThrows(DoctorNotFoundException.class, () -> visitService.addVisit(req));
     }
 
     @Test
     void shouldThrowWhenPatientNotFound() {
-        VisitRequest req = new VisitRequest(1, 99, 1, LocalTime.now(), LocalTime.now().plusMinutes(30));
+        LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(10, 0));
+        LocalDateTime end = start.plusMinutes(30);
+        VisitRequest req = new VisitRequest(1, 99, 1, start, end);
         when(doctorRepository.existsById(1)).thenReturn(true);
         when(patientRepository.existsById(99)).thenReturn(false);
         assertThrows(PatientNotFoundException.class, () -> visitService.addVisit(req));
@@ -105,7 +109,9 @@ class VisitServiceTest {
 
     @Test
     void shouldThrowWhenRoomNotFound() {
-        VisitRequest req = new VisitRequest(1, 1, 99, LocalTime.now(), LocalTime.now().plusMinutes(30));
+        LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(10, 0));
+        LocalDateTime end = start.plusMinutes(30);
+        VisitRequest req = new VisitRequest(1, 1, 99, start, end);
         when(doctorRepository.existsById(1)).thenReturn(true);
         when(patientRepository.existsById(1)).thenReturn(true);
         when(consultingRoomRepository.existsById(99)).thenReturn(false);
@@ -114,7 +120,9 @@ class VisitServiceTest {
 
     @Test
     void shouldThrowWhenVisitExistsForDoctor() {
-        VisitRequest req = new VisitRequest(1, 1, 1, LocalTime.of(10,0), LocalTime.of(10,30));
+        LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(10, 0));
+        LocalDateTime end = start.plusMinutes(30);
+        VisitRequest req = new VisitRequest(1, 1, 1, start, end);
         when(doctorRepository.existsById(1)).thenReturn(true);
         when(patientRepository.existsById(1)).thenReturn(true);
         when(consultingRoomRepository.existsById(1)).thenReturn(true);
@@ -125,7 +133,9 @@ class VisitServiceTest {
 
     @Test
     void shouldThrowWhenVisitExistsForRoom() {
-        VisitRequest req = new VisitRequest(1, 1, 1, LocalTime.of(10,0), LocalTime.of(10,30));
+        LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(10, 0));
+        LocalDateTime end = start.plusMinutes(30);
+        VisitRequest req = new VisitRequest(1, 1, 1, start, end);
         when(doctorRepository.existsById(1)).thenReturn(true);
         when(patientRepository.existsById(1)).thenReturn(true);
         when(consultingRoomRepository.existsById(1)).thenReturn(true);
@@ -137,7 +147,9 @@ class VisitServiceTest {
 
     @Test
     void shouldThrowWhenVisitExistsForPatient() {
-        VisitRequest req = new VisitRequest(1, 1, 1, LocalTime.of(10,0), LocalTime.of(10,30));
+        LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(10, 0));
+        LocalDateTime end = start.plusMinutes(30);
+        VisitRequest req = new VisitRequest(1, 1, 1, start, end);
         when(doctorRepository.existsById(1)).thenReturn(true);
         when(patientRepository.existsById(1)).thenReturn(true);
         when(consultingRoomRepository.existsById(1)).thenReturn(true);
@@ -150,7 +162,9 @@ class VisitServiceTest {
 
     @Test
     void shouldThrowWhenNoScheduleForDoctor() {
-        VisitRequest req = new VisitRequest(1, 1, 1, LocalTime.of(10,0), LocalTime.of(10,30));
+        LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(10, 0));
+        LocalDateTime end = start.plusMinutes(30);
+        VisitRequest req = new VisitRequest(1, 1, 1, start, end);
         when(doctorRepository.existsById(1)).thenReturn(true);
         when(patientRepository.existsById(1)).thenReturn(true);
         when(consultingRoomRepository.existsById(1)).thenReturn(true);
@@ -164,8 +178,9 @@ class VisitServiceTest {
 
     @Test
     void shouldAddVisitSuccessfully() {
-        VisitRequest req = new VisitRequest(1, 1, 1, LocalTime.of(10,0), LocalTime.of(10,30));
-
+        LocalDateTime start = LocalDateTime.of(TEST_DATE, LocalTime.of(10, 0));
+        LocalDateTime end = start.plusMinutes(30);
+        VisitRequest req = new VisitRequest(1, 1, 1, start, end);
 
         when(doctorRepository.existsById(1)).thenReturn(true);
         when(patientRepository.existsById(1)).thenReturn(true);
@@ -173,8 +188,6 @@ class VisitServiceTest {
         when(visitRepository.visitAlreadyExistsForDoctor(anyInt(), any(), any())).thenReturn(false);
         when(visitRepository.visitAlreadyExistsForConsultingRoom(anyInt(), any(), any())).thenReturn(false);
         when(visitRepository.visitAlreadyExistsForPatient(anyInt(), any(), any())).thenReturn(false);
-
-
         when(scheduleRepository.ScheduleExistsForDoctorInPeriodInRoom(anyInt(), anyInt(), any(), any())).thenReturn(true);
 
         when(doctorRepository.findById(1)).thenReturn(Optional.of(mock(Doctor.class)));
@@ -188,8 +201,7 @@ class VisitServiceTest {
 
     @Test
     void shouldReturnPossibleVisits() {
-        // given
-        MedicalSpecialization spec = MedicalSpecialization.CARDIOLOGY; // Visit time e.g., 30 min
+        MedicalSpecialization spec = MedicalSpecialization.CARDIOLOGY;
 
         DoctorBrief docBrief = mock(DoctorBrief.class);
         when(docBrief.getId()).thenReturn(1);
@@ -212,18 +224,14 @@ class VisitServiceTest {
         ScheduleDetail schedule = mock(ScheduleDetail.class);
         when(schedule.getDoctor()).thenReturn(doc);
         when(schedule.getConsultingRoom()).thenReturn(roomBrief);
-        when(schedule.getShiftStart()).thenReturn(LocalTime.of(8, 0));
-        when(schedule.getShiftEnd()).thenReturn(LocalTime.of(9, 0));
+        when(schedule.getShiftStart()).thenReturn(LocalDateTime.of(TEST_DATE, LocalTime.of(8, 0)));
+        when(schedule.getShiftEnd()).thenReturn(LocalDateTime.of(TEST_DATE, LocalTime.of(9, 0)));
 
         when(scheduleRepository.findAllByDoctorIdDetail(1)).thenReturn(List.of(schedule));
-
-        // Ensure no colliding visits
         when(visitRepository.collidingVisitExist(any(), any(), anyInt())).thenReturn(false);
 
-        // when
         TestObserver<AvailabilityResponse> observer = visitService.getPossibleVisits(spec).test();
 
-        // then
         observer.awaitCount(2);
         observer.assertNoErrors();
         observer.assertValueCount(2);

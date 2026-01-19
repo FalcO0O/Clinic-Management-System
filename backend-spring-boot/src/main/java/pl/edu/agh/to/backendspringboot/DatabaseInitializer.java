@@ -17,6 +17,8 @@ import pl.edu.agh.to.backendspringboot.infrastructure.patient.PatientRepository;
 import pl.edu.agh.to.backendspringboot.infrastructure.schedule.ScheduleRepository;
 import pl.edu.agh.to.backendspringboot.infrastructure.visit.VisitRepository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class DatabaseInitializer {
@@ -37,6 +39,8 @@ public class DatabaseInitializer {
         visitRepository.deleteAll();
         scheduleRepository.deleteAll();
         doctorRepository.deleteAll();
+        patientRepository.deleteAll();
+        consultingRoomRepository.deleteAll();
 
         var doc1 = doctorRepository.save(new Doctor(
                 "John", "Doe", "12345678901",
@@ -79,10 +83,12 @@ public class DatabaseInitializer {
                 new MedicalFacilities(true, true, false, false, true)
         ));
 
-        scheduleRepository.save(new Schedule(doc1, room101, LocalTime.of(8, 0), LocalTime.of(12, 0)));
-        scheduleRepository.save(new Schedule(doc2, room102, LocalTime.of(8, 0), LocalTime.of(12, 0)));
-        scheduleRepository.save(new Schedule(doc3, room101, LocalTime.of(13, 0), LocalTime.of(17, 0)));
-        scheduleRepository.save(new Schedule(doc4, room201, LocalTime.of(9, 0), LocalTime.of(15, 0)));
+        LocalDate today = LocalDate.now();
+
+        scheduleRepository.save(new Schedule(doc1, room101, LocalDateTime.of(today, LocalTime.of(8, 0)), LocalDateTime.of(today, LocalTime.of(12, 0))));
+        scheduleRepository.save(new Schedule(doc2, room102, LocalDateTime.of(today, LocalTime.of(8, 0)), LocalDateTime.of(today, LocalTime.of(12, 0))));
+        scheduleRepository.save(new Schedule(doc3, room101, LocalDateTime.of(today, LocalTime.of(13, 0)), LocalDateTime.of(today, LocalTime.of(17, 0))));
+        scheduleRepository.save(new Schedule(doc4, room201, LocalDateTime.of(today, LocalTime.of(9, 0)), LocalDateTime.of(today, LocalTime.of(15, 0))));
 
         var p1 = patientRepository.save(new Patient(
                 "Jan", "Kowalski", "90010112345",
@@ -114,11 +120,10 @@ public class DatabaseInitializer {
                 new Address("Lipowa 3", "Lublin", "20-111")
         ));
 
-        // Dodanie wizyt
-        visitRepository.save(new Visit(p1, doc1, LocalTime.of(8, 0), LocalTime.of(8, 30), room101));
-        visitRepository.save(new Visit(p2, doc1, LocalTime.of(8, 30), LocalTime.of(9, 0), room101));
-        visitRepository.save(new Visit(p3, doc2, LocalTime.of(9, 0), LocalTime.of(9, 30), room102));
-        visitRepository.save(new Visit(p4, doc4, LocalTime.of(10, 0), LocalTime.of(10, 45), room201));
+        visitRepository.save(new Visit(p1, doc1, LocalDateTime.of(today, LocalTime.of(8, 0)), LocalDateTime.of(today, LocalTime.of(8, 30)), room101));
+        visitRepository.save(new Visit(p2, doc1, LocalDateTime.of(today, LocalTime.of(8, 30)), LocalDateTime.of(today, LocalTime.of(9, 0)), room101));
+        visitRepository.save(new Visit(p3, doc2, LocalDateTime.of(today, LocalTime.of(9, 0)), LocalDateTime.of(today, LocalTime.of(9, 30)), room102));
+        visitRepository.save(new Visit(p4, doc4, LocalDateTime.of(today, LocalTime.of(10, 0)), LocalDateTime.of(today, LocalTime.of(10, 45)), room201));
 
         System.out.println("Database initialized successfully");
     }
