@@ -123,7 +123,36 @@ function App() {
     });
     return qs.toString();
   };
-  const fmtTime = (t) => (t ? String(t).slice(0, 5) : '');
+  const fmtTime = (t) => {
+    if (!t) return '';
+    const s = String(t);
+    if (s.includes('T')) return s.split('T')[1]?.slice(0, 5) || '';
+    if (s.includes(' ')) return s.split(' ')[1]?.slice(0, 5) || '';
+    return s.slice(0, 5);
+  };
+
+  const fmtDate = (t) => {
+    if (!t) return '';
+    const s = String(t);
+    if (s.includes('T')) return s.split('T')[0] || '';
+    if (s.includes(' ')) return s.split(' ')[0] || '';
+    return s.length >= 10 ? s.slice(0, 10) : s;
+  };
+
+  const fmtDateTime = (t) => {
+    const d = fmtDate(t);
+    const tm = fmtTime(t);
+    if (d && tm) return `${d} ${tm}`;
+    return d || tm || '';
+  };
+
+  const toBackendDateTime = (value) => {
+    if (!value) return value;
+    const s = String(value);
+    // input[type="datetime-local"] -> YYYY-MM-DDTHH:mm (bez sekund)
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s)) return `${s}:00`;
+    return s;
+  };
 
   const enumToTitleCase = (enumValue) =>
     String(enumValue || '')
@@ -143,9 +172,9 @@ function App() {
   const [schedulesListError, setSchedulesListError] = useState('');
 
   const getScheduleId = (schedule) =>
-    // Backend: GET /schedules => dutyTime.id jest ID dyżuru (schedule)
-    schedule?.dutyTime?.id ??
+    // Backend: DELETE /schedules/{id} używa ID dyżuru z obiektu schedule
     schedule?.id ??
+    schedule?.dutyTime?.id ??
     schedule?.scheduleId ??
     schedule?.dutyId ??
     schedule?.dutyTimeId;
@@ -218,6 +247,9 @@ function App() {
     consultingRoomId: '',
   });
 
+  // NEW: filtr zakresu dni w dostępności wizyt
+  const [bookDateRange, setBookDateRange] = useState({ from: '', to: '' });
+
   const [selectedBookSlot, setSelectedBookSlot] = useState(null);
 
   // Segment 3: wizyty pacjentów
@@ -240,6 +272,17 @@ function App() {
       if (d?.id && !map.has(d.id)) map.set(d.id, d);
     });
     return Array.from(map.values());
+  };
+
+  const isSlotInDateRange = (slot, range) => {
+    const from = range?.from;
+    const to = range?.to;
+    if (!from && !to) return true;
+    const d = fmtDate(slot?.visitStart);
+    if (!d) return false;
+    if (from && d < from) return false;
+    if (to && d > to) return false;
+    return true;
   };
 
   const fetchVisitsAvailability = async (specEnum) => {
@@ -327,6 +370,14 @@ function App() {
     }
   };
 
+  const handleBookDateRangeChange = (e) => {
+    const { name, value } = e.target;
+    setBookDateRange((r) => ({ ...r, [name]: value }));
+    // filtr wpływa na dostępnych lekarzy/sloty, więc czyścimy wybory zależne
+    setSelectedBookSlot(null);
+    setBookForm((s) => ({ ...s, doctorId: '', consultingRoomId: '' }));
+  };
+
   const submitBookVisit = async () => {
     setBookError('');
     setBookSuccess('');
@@ -341,8 +392,8 @@ function App() {
       doctorId: Number(bookForm.doctorId),
       patientId: Number(bookForm.patientId),
       consultingRoomId: Number(bookForm.consultingRoomId),
-      visitStart: fmtTime(selectedBookSlot.visitStart),
-      visitEnd: fmtTime(selectedBookSlot.visitEnd),
+      visitStart: toBackendDateTime(selectedBookSlot.visitStart),
+      visitEnd: toBackendDateTime(selectedBookSlot.visitEnd),
     };
 
     try {
@@ -765,9 +816,12 @@ function App() {
 
   const checkAvailability = async () => {
     if (!scheduleFormData.startTime || !scheduleFormData.endTime) {
-      setScheduleError('Podaj godzinę rozpoczęcia i zakończenia');
+      setScheduleError('Podaj datę i godzinę rozpoczęcia oraz zakończenia');
       return;
     }
+
+    const startTime = toBackendDateTime(scheduleFormData.startTime);
+    const endTime = toBackendDateTime(scheduleFormData.endTime);
     
     setScheduleError('');
     setScheduleSuccess('');
@@ -775,9 +829,8 @@ function App() {
     setAvailability(null);
     
     try {
-      const res = await fetch(
-        `${SCHEDULES_API_URL}/availability?startTime=${scheduleFormData.startTime}&endTime=${scheduleFormData.endTime}`
-      );
+      const qs = buildQuery({ startTime, endTime });
+      const res = await fetch(`${SCHEDULES_API_URL}/availability?${qs}`);
       
       if (res.ok) {
         const data = await res.json();
@@ -810,12 +863,14 @@ function App() {
     }
     
     try {
+      const startTime = toBackendDateTime(scheduleFormData.startTime);
+      const endTime = toBackendDateTime(scheduleFormData.endTime);
       const res = await fetch(SCHEDULES_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          startTime: scheduleFormData.startTime,
-          endTime: scheduleFormData.endTime,
+          startTime,
+          endTime,
           doctorId: parseInt(scheduleFormData.doctorId),
           consultingRoomId: parseInt(scheduleFormData.consultingRoomId)
         })
@@ -840,6 +895,11 @@ function App() {
       console.error(err);
     }
   };
+
+  // UI: przefiltrowane sloty po zakresie dni
+  const filteredBookAvailabilitySlots = (bookAvailabilitySlots || []).filter((s) =>
+    isSlotInDateRange(s, bookDateRange)
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 p-6 font-sans">
@@ -1348,7 +1408,7 @@ function App() {
                     name="doctorId"
                     value={bookForm.doctorId}
                     onChange={handleBookFormChange}
-                    disabled={!bookForm.specialization || isLoadingBookAvailability || bookAvailabilitySlots.length === 0}
+                    disabled={!bookForm.specialization || isLoadingBookAvailability || filteredBookAvailabilitySlots.length === 0}
                     className={`input-field bg-white ${(bookForm.specialization && isLoadingBookAvailability) ? 'animate-pulse bg-slate-100 text-slate-400' : ''}`}
                   >
                     <option value="">
@@ -1356,9 +1416,9 @@ function App() {
                         ? 'Najpierw wybierz specjalizację'
                         : (isLoadingBookAvailability
                           ? 'Ładowanie lekarzy...'
-                          : (bookAvailabilitySlots.length === 0 ? 'Brak dostępnych lekarzy' : '-- wybierz lekarza --'))}
+                          : (filteredBookAvailabilitySlots.length === 0 ? 'Brak dostępnych lekarzy' : '-- wybierz lekarza --'))}
                     </option>
-                    {uniqueDoctorsFromSlots(bookAvailabilitySlots).map((d) => (
+                    {uniqueDoctorsFromSlots(filteredBookAvailabilitySlots).map((d) => (
                       <option key={d.id} value={d.id}>
                         {/* USUNIĘTO dopisek "(specialization)" */}
                         {d.firstName} {d.lastName}
@@ -1368,13 +1428,37 @@ function App() {
                 </div>
               </div>
 
+              {/* Filtr zakresu dni */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-600 mb-1">Od</label>
+                  <input
+                    type="date"
+                    name="from"
+                    value={bookDateRange.from}
+                    onChange={handleBookDateRangeChange}
+                    className="input-field"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-600 mb-1">Do</label>
+                  <input
+                    type="date"
+                    name="to"
+                    value={bookDateRange.to}
+                    onChange={handleBookDateRangeChange}
+                    className="input-field"
+                  />
+                </div>
+              </div>
+
               {/* Kafelki terminów */}
               <div className="mt-5 border-t pt-4">
                 <p className="text-sm font-bold text-slate-400 uppercase tracking-wide mb-3">Dostępne terminy i pokoje</p>
 
                 {bookForm.doctorId ? (
                   <div className="flex flex-wrap gap-2">
-                    {bookAvailabilitySlots
+                    {filteredBookAvailabilitySlots
                       .filter((s) => String(s?.doctor?.id) === String(bookForm.doctorId))
                       .map((slot, idx) => {
                         const selected =
@@ -1402,7 +1486,7 @@ function App() {
                             }`}
                             title="Kliknij, aby wybrać termin i pokój"
                           >
-                            <span className="font-mono">{fmtTime(slot?.visitStart)} - {fmtTime(slot?.visitEnd)}</span>
+                            <span className="font-mono">{fmtDateTime(slot?.visitStart)} - {fmtTime(slot?.visitEnd)}</span>
                             {roomNumber !== undefined && roomNumber !== null && String(roomNumber) !== '' ? (
                               <span className="ml-2">• Pokój {roomNumber}</span>
                             ) : (
@@ -1469,8 +1553,8 @@ function App() {
                         return (
                           <tr key={v.id || `${start}-${end}-${String(roomNumber)}`} className="hover:bg-slate-50 transition">
                             <td className="px-4 py-3">{typeof roomNumber === 'string' ? roomNumber : `Pokój ${roomNumber}`}</td>
-                            <td className="px-4 py-3 font-mono text-sm">{fmtTime(start)}</td>
-                            <td className="px-4 py-3 font-mono text-sm">{fmtTime(end)}</td>
+                            <td className="px-4 py-3 font-mono text-sm">{fmtDateTime(start)}</td>
+                            <td className="px-4 py-3 font-mono text-sm">{fmtDateTime(end)}</td>
                             <td className="px-4 py-3 text-right space-x-2">
                               <button
                                 onClick={() => fetchVisitDetails(v.id)}
@@ -1523,7 +1607,7 @@ function App() {
                       <div>
                         <label className="text-xs text-slate-400 uppercase font-bold">Czas wizyty</label>
                         <p className="font-mono text-slate-800">
-                          {fmtTime(selectedVisitDetails.visitStart ?? selectedVisitDetails.startTime)} - {fmtTime(selectedVisitDetails.visitEnd ?? selectedVisitDetails.endTime)}
+                          {fmtDateTime(selectedVisitDetails.visitStart ?? selectedVisitDetails.startTime)} - {fmtDateTime(selectedVisitDetails.visitEnd ?? selectedVisitDetails.endTime)}
                         </p>
                       </div>
 
@@ -1634,9 +1718,9 @@ function App() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1">Godzina rozpoczęcia</label>
+                    <label className="block text-sm font-medium text-slate-600 mb-1">Data i godzina rozpoczęcia</label>
                     <input 
-                      type="time" 
+                      type="datetime-local" 
                       name="startTime" 
                       value={scheduleFormData.startTime} 
                       onChange={handleScheduleChange}
@@ -1644,9 +1728,9 @@ function App() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-600 mb-1">Godzina zakończenia</label>
+                    <label className="block text-sm font-medium text-slate-600 mb-1">Data i godzina zakończenia</label>
                     <input 
-                      type="time" 
+                      type="datetime-local" 
                       name="endTime" 
                       value={scheduleFormData.endTime} 
                       onChange={handleScheduleChange}
@@ -1786,6 +1870,7 @@ function App() {
                     <tr>
                       <th className="px-4 py-3">Lekarz</th>
                       <th className="px-4 py-3">Gabinet</th>
+                      <th className="px-4 py-3">Data</th>
                       <th className="px-4 py-3">Godziny</th>
                       <th className="px-4 py-3 text-right">Akcje</th>
                     </tr>
@@ -1793,7 +1878,7 @@ function App() {
                   <tbody className="divide-y divide-slate-100">
                     {schedules.length === 0 ? (
                       <tr>
-                        <td colSpan="4" className="px-4 py-6 text-center text-slate-400">Brak dyżurów</td>
+                        <td colSpan="5" className="px-4 py-6 text-center text-slate-400">Brak dyżurów</td>
                       </tr>
                     ) : (
                       schedules.map((s) => (
@@ -1805,6 +1890,9 @@ function App() {
                             <div className="text-xs text-slate-500">{s.doctor?.specialization}</div>
                           </td>
                           <td className="px-4 py-3">Pokój {s.consultingRoom?.roomNumber}</td>
+                          <td className="px-4 py-3 font-mono text-sm text-slate-700">
+                            {fmtDate(s.dutyTime?.shiftStart)}
+                          </td>
                           <td className="px-4 py-3 font-mono text-sm text-slate-700">
                             {fmtTime(s.dutyTime?.shiftStart)} - {fmtTime(s.dutyTime?.shiftEnd)}
                           </td>
