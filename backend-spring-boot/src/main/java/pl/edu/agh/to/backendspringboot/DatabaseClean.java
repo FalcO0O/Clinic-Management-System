@@ -8,6 +8,7 @@ import pl.edu.agh.to.backendspringboot.infrastructure.consulting_room.Consulting
 import pl.edu.agh.to.backendspringboot.infrastructure.doctor.DoctorRepository;
 import pl.edu.agh.to.backendspringboot.infrastructure.patient.PatientRepository;
 import pl.edu.agh.to.backendspringboot.infrastructure.schedule.ScheduleRepository;
+import pl.edu.agh.to.backendspringboot.infrastructure.visit.VisitRepository;
 
 @Component
 public class DatabaseClean {
@@ -24,7 +25,9 @@ public class DatabaseClean {
         ConsultingRoomRepository consultingRoomRepository = context.getBean(ConsultingRoomRepository.class);
         ScheduleRepository scheduleRepository = context.getBean(ScheduleRepository.class);
         PatientRepository patientRepository = context.getBean(PatientRepository.class);
+        VisitRepository visitRepository = context.getBean(VisitRepository.class);
 
+        visitRepository.deleteAll();
         scheduleRepository.deleteAll();
         doctorRepository.deleteAll();
         consultingRoomRepository.deleteAll();

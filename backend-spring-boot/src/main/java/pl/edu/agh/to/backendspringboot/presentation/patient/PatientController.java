@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.edu.agh.to.backendspringboot.application.patient.PatientService;
 import pl.edu.agh.to.backendspringboot.domain.patient.exception.PatientAlreadyExistsException;
+import pl.edu.agh.to.backendspringboot.domain.patient.exception.PatientAssignedToVisitException;
 import pl.edu.agh.to.backendspringboot.domain.patient.exception.PatientNotFoundException;
 import pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientBriefResponse;
 import pl.edu.agh.to.backendspringboot.presentation.patient.dto.PatientDetailResponse;
@@ -66,6 +67,13 @@ public class PatientController {
         }
     }
 
+    /**
+     * Rejestruje nowego pacjenta w systemie.
+     * Przyjmuje dane w formacie DTO, które są walidowane przed przetworzeniem.
+     *
+     * @param patientRequest Obiekt DTO zawierający dane nowego pacjenta (np. imię, nazwisko, PESEL).
+     * @throws ResponseStatusException (HttpStatus.CONFLICT) jeśli pacjent z podanym numerem PESEL już istnieje w systemie.
+     */
     @Operation(summary = "Dodaj pacjenta", description = "Tworzy nowego pacjenta w systemie.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Pacjent został pomyślnie utworzony"),
@@ -90,6 +98,7 @@ public class PatientController {
     @Operation(summary = "Usuń pacjenta", description = "Usuwa pacjenta z bazy danych.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Pacjent usunięty"),
+            @ApiResponse(responseCode = "409", description = "Pacjent ma umówioną wizytę"),
             @ApiResponse(responseCode = "404", description = "Pacjent nie znaleziony")
     })
     @DeleteMapping("/{id}")
@@ -98,6 +107,8 @@ public class PatientController {
             patientService.deletePatientById(id);
         } catch (PatientNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }catch (PatientAssignedToVisitException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         }
     }
 }

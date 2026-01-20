@@ -7,7 +7,7 @@ import pl.edu.agh.to.backendspringboot.domain.consulting_room.model.ConsultingRo
 import pl.edu.agh.to.backendspringboot.domain.doctor.model.Doctor;
 import pl.edu.agh.to.backendspringboot.domain.schedule.model.Schedule;
 
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 public record ScheduleRequest(
         @Schema(
@@ -17,7 +17,7 @@ public record ScheduleRequest(
                 example = "08:00"
         )
         @DateTimeFormat(pattern ="HH:mm")
-        LocalTime startTime,
+        LocalDateTime startTime,
 
         @Schema(
                 description = "Godzina zakończenia dyżuru",
@@ -26,7 +26,7 @@ public record ScheduleRequest(
                 example = "16:00"
         )
         @DateTimeFormat(pattern ="HH:mm")
-        LocalTime endTime,
+        LocalDateTime endTime,
 
         @Schema(description = "ID lekarza", example = "10")
         @NotNull

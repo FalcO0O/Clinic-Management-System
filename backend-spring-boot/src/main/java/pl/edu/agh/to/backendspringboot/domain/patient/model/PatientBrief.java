@@ -4,4 +4,5 @@ public interface PatientBrief {
     Integer getId();
     String getFirstName();
     String getLastName();
+    String getPesel();
 }

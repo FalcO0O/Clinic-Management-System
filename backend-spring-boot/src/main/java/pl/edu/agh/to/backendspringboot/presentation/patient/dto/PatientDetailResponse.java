@@ -1,6 +1,10 @@
 package pl.edu.agh.to.backendspringboot.presentation.patient.dto;
 
-import pl.edu.agh.to.backendspringboot.domain.patient.model.PatientDetail;
+import pl.edu.agh.to.backendspringboot.domain.patient.model.Patient;
+import pl.edu.agh.to.backendspringboot.domain.visit.VisitBriefPatient;
+import pl.edu.agh.to.backendspringboot.presentation.visit.dto.VisitBriefPatientResponse;
+
+import java.util.List;
 
 public record PatientDetailResponse(
         Integer id,
@@ -9,9 +13,13 @@ public record PatientDetailResponse(
         String pesel,
         String street,
         String city,
-        String postalCode
+        String postalCode,
+        List<VisitBriefPatientResponse> visits
 ) {
-    public static PatientDetailResponse from(PatientDetail patient) {
+    public static PatientDetailResponse from(Patient patient, List<VisitBriefPatient> visits) {
+        List<VisitBriefPatientResponse> visitDtos = visits.stream().map(VisitBriefPatientResponse::from)
+                .toList();
+
         return new PatientDetailResponse(
                 patient.getId(),
                 patient.getFirstName(),
@@ -19,7 +27,8 @@ public record PatientDetailResponse(
                 patient.getPesel(),
                 patient.getAddress().getStreet(),
                 patient.getAddress().getCity(),
-                patient.getAddress().getPostalCode()
+                patient.getAddress().getPostalCode(),
+                visitDtos
         );
     }
 }

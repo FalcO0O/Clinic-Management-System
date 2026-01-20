@@ -25,4 +25,11 @@ public record DoctorBriefResponse(
                 doctor.getSpecialization().toString()
         );
     }
+    public String getLastName(){
+        return lastName;
+    }
+
+    public int getId() {
+        return id;
+    }
 }
