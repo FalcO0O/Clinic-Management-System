@@ -27,11 +27,11 @@ public class DatabaseClean {
         PatientRepository patientRepository = context.getBean(PatientRepository.class);
         VisitRepository visitRepository = context.getBean(VisitRepository.class);
 
+        visitRepository.deleteAll();
         scheduleRepository.deleteAll();
         doctorRepository.deleteAll();
         consultingRoomRepository.deleteAll();
         patientRepository.deleteAll();
-        visitRepository.deleteAll();
 
         System.out.println("Database cleaned.");
         System.exit(0);
